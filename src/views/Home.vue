@@ -19,7 +19,7 @@ const activeTab = ref(0)
 const saveLogin = ref(false)
 const useLastLogin = ref(false)
 const updateSeconds = ref<[number, number]>([2, 5])
-const apiMethod = ref('direct')
+const apiMethod = ref('proxy')
 
 const account = reactive({
   uuid: '',
