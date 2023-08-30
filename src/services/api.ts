@@ -1,6 +1,7 @@
 import request from '@/utils/request'
 
 const proxyHost = import.meta.env.VITE_APP_PROXY_HOST ?? '/'
+const directHost = 'https://macaoapply.singlewindow.gd.cn/'
 
 export function sendApplyNotify(
   params: any,
@@ -12,25 +13,19 @@ export function sendApplyNotify(
 }
 
 export function getVerifyCode(params: any): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod')
-  if (!apiMethod) {
-    apiMethod = 'proxy'
-  }
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
   return request<any>(
     `before/sys/verifyCode/getLoginVerifyCode`,
     {
       params,
       method: 'GET',
     },
-    proxyHost
+    apiMethod === 'proxy' ? proxyHost : directHost
   )
 }
 
 export function getLogin(params: any): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod')
-  if (!apiMethod) {
-    apiMethod = 'proxy'
-  }
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
   return request<any>(
     `before/login`,
     {
@@ -40,15 +35,12 @@ export function getLogin(params: any): Promise<any> {
         headers: { 'content-type': 'application/x-www-form-urlencoded' },
       },
     },
-    proxyHost
+    apiMethod === 'proxy' ? proxyHost : directHost
   )
 }
 
 export function getAppointmentDate(params: any, token: string): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod')
-  if (!apiMethod) {
-    apiMethod = 'proxy'
-  }
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
   return request<any>(
     `before/sys/appointment/getAppointmentDate`,
     {
@@ -58,6 +50,6 @@ export function getAppointmentDate(params: any, token: string): Promise<any> {
         headers: { 'content-type': 'application/x-www-form-urlencoded', 'X-Access-Token': token },
       },
     },
-    proxyHost
+    apiMethod === 'proxy' ? proxyHost : directHost
   )
 }
