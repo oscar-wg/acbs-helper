@@ -8,9 +8,9 @@
     "email": "kamfu.work@gmail.com"
   },
   "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "deploy": "vite build && netlify deploy --dir=dist --prod"
+    "dev": "node -r dotenv/config ./node_modules/.bin/vite",
+    "build": "tsc && node -r dotenv/config ./node_modules/.bin/vite build",
+    "deploy": "netlify deploy --dir=dist --prod"
   },
   "dependencies": {
     "@babel/types": "^7.22.10",
@@ -19,6 +19,7 @@
     "buffer": "^6.0.3",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.11.9",
+    "dotenv": "^16.3.1",
     "js-cookie": "^3.0.5",
     "pinia": "^2.1.4",
     "pngjs": "^7.0.0",
