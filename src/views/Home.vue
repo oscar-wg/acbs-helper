@@ -8,7 +8,7 @@ import {
 } from '@/services/api'
 import { $utils } from '@/utils/index'
 import { getAcbsJwt, getAcbsPwHash } from '@/utils/acbs'
-import { parseVerifyCode } from '@/utils/tesseract'
+// import { parseVerifyCode } from '@/utils/tesseract'
 
 defineOptions({
   name: 'Home',
@@ -57,9 +57,13 @@ const loadVerifyCode = async () => {
     }
     account.verifyCodeImg = resp.responseResult.imageUrl
     account.verifyCodeId = resp.responseResult.verifyCodeId
+
+    /*
+    // disable parse verify code, after 2023/08/31, the verify code image change to PNG and add noise, can not parse by original function
     parseVerifyCode(account.verifyCodeImg, (result: string) => {
       account.verifyCode = result
-    })        
+    })
+    */       
   })
 }
 
