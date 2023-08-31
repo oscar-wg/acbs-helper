@@ -4,10 +4,13 @@
 
 ## 特點
 
-- [Serverless](https://www.serverless.com/) 。
-- 前端使用 [Vue.js](https://vuejs.org/) 和 [Vant](https://vant-contrib.gitee.io/vant/) UI 框架。
+- [Serverless](https://www.serverless.com/)
+- 前端使用 [Vue.js](https://vuejs.org/) 和 [Vant](https://vant-contrib.gitee.io/vant/) UI 框架
 
 ## 使用介紹
+
+### 登入
+使用原網站的登入賬戶，若勾選「本機儲存登入資訊」，網頁會將資料儲存於瀏覽器的LocalStorage，由此網頁下次開啟時使用。
 
 ## 聯繫我們
 

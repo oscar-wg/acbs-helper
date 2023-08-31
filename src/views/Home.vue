@@ -183,6 +183,9 @@ const onClickClearStorage = async () => {
 
 const onClickSearch = async () => {
   isLoading.value = true
+  const today = new Date()
+  const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
+  const currentTimeStr = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`
   if (account.appointmentDateJwt === '') {
     account.appointmentDateJwt = getAcbsJwt({
       'appointmentType': 'passBooking',
@@ -204,7 +207,7 @@ const onClickSearch = async () => {
     }
 
     account.appointmentDateData = resp.responseResult.appointmentDateList
-    account.appointmentDateDataUpdate = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
+    account.appointmentDateDataUpdate = `${todayStr} ${currentTimeStr}`
   }).finally(() => {
     isLoading.value = false
   })
@@ -212,17 +215,17 @@ const onClickSearch = async () => {
   if (account.appointmentDateData !== null) {
     for (const info of account.appointmentDateData) {
       const temp: any = info
-      temp.appointmentDateRef = new Date(temp.appointmentDateRef)
-      if (account.appointmentDateStart > temp.appointmentDateRef) {
-        account.appointmentDateStart = temp.appointmentDateRef
+      const tempDate = new Date(temp.appointmentDateRef)
+      if (account.appointmentDateStart > tempDate) {
+        account.appointmentDateStart = tempDate
       }
-      if (account.appointmentDateEnd < temp.appointmentDateRef) {
-        account.appointmentDateEnd = temp.appointmentDateRef
+      if (account.appointmentDateEnd < tempDate) {
+        account.appointmentDateEnd = tempDate
       }
     }
   }
 
-  if (account.appointmentDateData.filter((r: any) => r.isFull !== true || parseInt(r.applyNum) !== parseInt(r.quota)).length > 0) {
+  if (account.appointmentDateData.filter((r: any) => parseInt(r.applyNum) !== parseInt(r.quota)).length > 0) {
     showNotify({ type: 'success', message: `有位！` })
     sendApplyNotify({
       data: account.appointmentDateData,
@@ -236,8 +239,7 @@ const calendarFormatter = (day: any) => {
   for (const info of account.appointmentDateData) {
     const temp: any = info
     if (
-      temp.appointmentDateRef.toLocaleDateString !== undefined &&
-      temp.appointmentDateRef.toLocaleDateString() === day.date.toLocaleDateString()
+      (new Date(temp.appointmentDateRef)).toLocaleDateString() === day.date.toLocaleDateString()
     ) {
       day.bottomInfo = (parseInt(temp.quota) - parseInt(temp.applyNum)).toString()
     }
@@ -454,7 +456,7 @@ onMounted(() => {
             title="自動更新"
             center
           >
-            <template #right-icon>
+            <template #value>
               <VanSwitch
                 @change="onChangeAutoSearch"
                 v-model="account.autoSearch"
@@ -480,7 +482,7 @@ onMounted(() => {
               {{
                 account.appointmentDateData.length === 0
                   ? ''
-                  : account.appointmentDateData.some(r => r.isFull !== true)
+                  : account.appointmentDateData.some((r: any) => r.quota !== r.applyNum)
                   ? '有'
                   : '沒有'
               }}
@@ -617,9 +619,13 @@ onMounted(() => {
   height: 100%;
   font-size: 14px;
 
-  .van-cell__title {
-    width: var(--van-field-label-width) !important;
-    flex: none;
+  .van-cell {
+    justify-content: space-between;
+
+    .van-cell__title {
+      width: var(--van-field-label-width) !important;
+      flex: none;
+    }
   }
 
   .slider-cell {
