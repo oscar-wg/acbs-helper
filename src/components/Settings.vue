@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, defineOptions, defineExpose } from 'vue'
 
 defineOptions({
   name: 'Settings'
@@ -56,7 +56,7 @@ defineExpose({
         <template #extra>
           <VanRadioGroup v-model="apiMethod" @change="onChangeApiMethod" style="width: 100%">
           <VanRadio name="direct">直連</VanRadio>
-          <VanRadio name="proxy">Reverse Proxy</VanRadio>
+          <VanRadio name="proxy" style="margin-top: 5px">Reverse Proxy</VanRadio>
         </VanRadioGroup>
         </template>
       </VanCell>
