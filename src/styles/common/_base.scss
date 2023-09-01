@@ -10,7 +10,7 @@ body {
   max-width: 750px;
   margin: 0 auto;
   height: 100vh;
-  overflow: scroll;
+  overflow-y: auto;
 }
 
 @supports (-webkit-touch-callout: none) {
