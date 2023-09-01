@@ -2,7 +2,7 @@ import CryptoJS from 'crypto-js'
 import jwt from '../utils/jwt'
 
 export const getAcbsJwt = (payload: object) => {
-  const secret = 'kIK0E3eP8GzOGoHrErZQ1BNmMCAwEAAQ==abc' // from localStorage (dKey) at https://macaoapply.singlewindow.gd.cn
+  const secret = import.meta.env.VITE_ACBS_JWT_SECRET // from localStorage (dKey) at https://macaoapply.singlewindow.gd.cn
   const defaultPayload = {
     issType: 'web',
     appType: 'web',
@@ -15,7 +15,7 @@ export const getAcbsJwt = (payload: object) => {
 }
 
 export const getAcbsPwHash = (pw: string) => {
-  const slat = 'yykj-donkey-6666' // hide in javascript (index.*.js) at https://macaoapply.singlewindow.gd.cn
+  const slat = import.meta.env.VITE_ACBS_AES_KEY // hide in javascript (index.*.js) at https://macaoapply.singlewindow.gd.cn
 
   const hashValue = CryptoJS.AES.encrypt(
     CryptoJS.enc.Utf8.parse(pw),
