@@ -1,9 +1,12 @@
 <script lang="ts" setup>
-  defineOptions({
-    name: 'App',
-  })
+import { Analytics } from '@vercel/analytics'
+
+defineOptions({
+  name: 'App',
+})
 </script>
 
 <template>
   <RouterView />
+  <Analytics />
 </template>
