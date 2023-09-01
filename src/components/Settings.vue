@@ -1,0 +1,92 @@
+<script lang="ts" setup>
+import { ref } from 'vue';
+
+defineOptions({
+  name: 'Settings'
+})
+
+const apiMethod = ref('proxy')
+const tgNotify = ref(false)
+const tgChatId = ref('')
+
+const init = () => {
+  tgNotify.value = false
+  tgChatId.value = ''
+}
+
+const onChangeTgNotify = (val: any) => {
+  localStorage.setItem('tgNotify', val)
+  if (val === true) {
+    localStorage.setItem('tgChatId', tgChatId.value)
+  } else {
+    localStorage.removeItem('tgChatId')
+  }
+}
+
+const onChangeApiMethod = (val: string) => {
+  localStorage.setItem('apiMethod', val)
+}
+
+onMounted(() => {
+  init()
+  let temp = localStorage.getItem('tgChatId')
+  if (temp !== undefined && temp !== null && temp !== '') {
+    tgChatId.value = temp
+  }
+  temp = localStorage.getItem('tgNotify')
+  if (temp !== undefined && temp !== null && temp !== '') {
+    tgNotify.value = JSON.parse(temp)
+  }
+  temp = localStorage.getItem('apiMethod')
+  if (temp !== undefined && temp !== null && temp !== '') {
+    apiMethod.value = temp
+  }
+})
+
+defineExpose({
+  init
+})
+
+</script>
+
+<template>
+  <div class="settings">
+    <VanCellGroup title="API">
+      <VanCell title="請求方法" center>
+        <template #extra>
+          <VanRadioGroup v-model="apiMethod" @change="onChangeApiMethod" style="width: 100%">
+          <VanRadio name="direct">直連</VanRadio>
+          <VanRadio name="proxy">Reverse Proxy</VanRadio>
+        </VanRadioGroup>
+        </template>
+      </VanCell>
+    </VanCellGroup>
+    <VanCellGroup title="Telegarm">
+      <VanField
+        v-model="tgChatId"
+        :disabled="tgNotify"
+        type="text"
+        label="Chat ID"
+        placeholder="@acbshelper_bot聯天室的Chat ID "
+        />
+      <VanCell
+        title="啟動自動通知"
+        center
+      >
+        <template #right-icon>
+          <VanSwitch
+            v-model="tgNotify"
+            :disabled="tgChatId === ''"
+            @change="onChangeTgNotify"
+          />
+        </template>
+      </VanCell>
+    </VanCellGroup>
+    <div style="margin: 16px; color: gray; font-size: 14px;">
+      查看 chat id 方法: 進入 Telegarm -> Contacts, 搜尋 @acbshelper_bot, 發送信息 /chatid
+    </div>
+  </div>
+</template>
+
+<style lang="scss">
+</style>

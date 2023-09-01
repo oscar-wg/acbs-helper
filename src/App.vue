@@ -1,12 +1,16 @@
 <script lang="ts" setup>
-import { Analytics } from '@vercel/analytics'
+import { inject } from '@vercel/analytics'
 
 defineOptions({
   name: 'App',
 })
+
+onMounted(() => {
+  inject()
+})
+
 </script>
 
 <template>
   <RouterView />
-  <Analytics />
 </template>
