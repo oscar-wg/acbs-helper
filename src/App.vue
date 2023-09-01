@@ -8,7 +8,6 @@ defineOptions({
 onMounted(() => {
   inject()
 })
-
 </script>
 
 <template>

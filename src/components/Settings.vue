@@ -2,7 +2,7 @@
 import { ref, defineOptions, defineExpose } from 'vue'
 
 defineOptions({
-  name: 'Settings'
+  name: 'Settings',
 })
 
 const apiMethod = ref('proxy')
@@ -44,20 +44,30 @@ onMounted(() => {
 })
 
 defineExpose({
-  init
+  init,
 })
-
 </script>
 
 <template>
   <div class="settings">
     <VanCellGroup title="API">
-      <VanCell title="請求方法" center>
+      <VanCell
+        title="請求方法"
+        center
+      >
         <template #extra>
-          <VanRadioGroup v-model="apiMethod" @change="onChangeApiMethod" style="width: 100%">
-          <VanRadio name="direct">直連</VanRadio>
-          <VanRadio name="proxy" style="margin-top: 5px">Reverse Proxy</VanRadio>
-        </VanRadioGroup>
+          <VanRadioGroup
+            v-model="apiMethod"
+            @change="onChangeApiMethod"
+            style="width: 100%"
+          >
+            <VanRadio name="direct">直連</VanRadio>
+            <VanRadio
+              name="proxy"
+              style="margin-top: 5px"
+              >Reverse Proxy</VanRadio
+            >
+          </VanRadioGroup>
         </template>
       </VanCell>
     </VanCellGroup>
@@ -68,7 +78,7 @@ defineExpose({
         type="text"
         label="Chat ID"
         placeholder="@acbshelper_bot聯天室的Chat ID "
-        />
+      />
       <VanCell
         title="啟動自動通知"
         center
@@ -82,11 +92,10 @@ defineExpose({
         </template>
       </VanCell>
     </VanCellGroup>
-    <div style="margin: 16px; color: gray; font-size: 14px;">
+    <div style="margin: 16px; color: gray; font-size: 14px">
       查看 chat id 方法: 進入 Telegarm -> Contacts, 搜尋 @acbshelper_bot, 發送信息 /chatid
     </div>
   </div>
 </template>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

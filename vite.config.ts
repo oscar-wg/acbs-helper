@@ -26,7 +26,7 @@ export default defineConfig({
     __VUE_I18N_FULL_INSTALL__: false,
     __VUE_I18N_LEGACY_API__: true,
     __INTLIFY_PROD_DEVTOOLS__: false,
-    'process.env': {}
+    'process.env': {},
   },
 
   esbuild: {

@@ -1,13 +1,13 @@
-@import "common/style";
+@import 'common/style';
 
 #app {
 }
 
 .van-block__title {
-    margin: 0;
-    padding: 20px 16px 16px;
-    color: var(--van-doc-text-color-4);
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 16px;
+  margin: 0;
+  padding: 20px 16px 16px;
+  color: var(--van-doc-text-color-4);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
 }

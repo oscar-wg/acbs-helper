@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { showNotify } from 'vant'
-import {
-  getLogin,
-  getVerifyCode,
-} from '@/services/api'
+import { getLogin, getVerifyCode } from '@/services/api'
 import { $utils } from '@/utils/index'
 import { getAcbsJwt, getAcbsPwHash } from '@/utils/acbs'
 // import { parseVerifyCode } from '@/utils/tesseract'
@@ -43,7 +40,7 @@ const loadVerifyCode = async () => {
   account.verifyCodeImg = ''
 
   const jwtEncode = getAcbsJwt({
-    'iss': account.uuid
+    iss: account.uuid,
   })
   await getVerifyCode({ jwt: jwtEncode }).then(async resp => {
     if (resp.responseCode !== 200) {
@@ -76,11 +73,17 @@ const onClickLogin = async () => {
   } else {
     account.passwordHash = ''
   }
-  if ((account.password.trim() === '' || account.password.trim().length < 8) && account.passwordHash === '') {
+  if (
+    (account.password.trim() === '' || account.password.trim().length < 8) &&
+    account.passwordHash === ''
+  ) {
     showNotify({ type: 'danger', message: '填寫密碼' })
     return
   }
-  if ((account.verifyCode.trim() === '' || account.verifyCode.trim().length < 8) && account.verifyCode === '') {
+  if (
+    (account.verifyCode.trim() === '' || account.verifyCode.trim().length < 8) &&
+    account.verifyCode === ''
+  ) {
     showNotify({ type: 'danger', message: '填寫驗證碼' })
     return
   }
@@ -93,50 +96,50 @@ const onClickLogin = async () => {
 
   if (account.verifyCode !== '') {
     const jwtEncode = getAcbsJwt({
-      'accountNo': account.username,
-      'password': account.passwordHash,
-      'verificationCode': account.verifyCode,
-      'pVerificationCode': '',
-      'loginVerifyCode': account.verifyCode,
-      'verifyCodeId': account.verifyCodeId,
-      'isNeedCheckVerifyCode': 'true',
-      'accountType': 'personal',
-      'iss': account.uuid,
+      accountNo: account.username,
+      password: account.passwordHash,
+      verificationCode: account.verifyCode,
+      pVerificationCode: '',
+      loginVerifyCode: account.verifyCode,
+      verifyCodeId: account.verifyCodeId,
+      isNeedCheckVerifyCode: 'true',
+      accountType: 'personal',
+      iss: account.uuid,
     })
     await getLogin({ jwt: jwtEncode }).then(async resp => {
-        if (resp.responseCode !== 200) {
-          showNotify({
-            type: 'danger',
-            message: `[澳車北上預約系統] ${resp.responseMessage}`,
-          })
-          if (resp.responseCode === 705) {
-            account.verifyCode = ''
-            account.verifyCodeId = ''
-            account.verifyCodeImg = ''
+      if (resp.responseCode !== 200) {
+        showNotify({
+          type: 'danger',
+          message: `[澳車北上預約系統] ${resp.responseMessage}`,
+        })
+        if (resp.responseCode === 705) {
+          account.verifyCode = ''
+          account.verifyCodeId = ''
+          account.verifyCodeImg = ''
 
-            await loadVerifyCode()
-            await onClickLogin()
-          }
-          account.passwordHash = ''
-          return
+          await loadVerifyCode()
+          await onClickLogin()
         }
-        account.token = resp.responseResult.token
-        account.name = resp.responseResult.userName
-        account.userId = resp.responseResult.carOwner.userId
-        if (saveLogin.value === true) {
-          localStorage.setItem('username', account.username)
-          localStorage.setItem('name', account.name)
-          localStorage.setItem('passwordHash', account.passwordHash)
-          localStorage.setItem('userId', account.userId)
-          localStorage.setItem('saveLogin', saveLogin.value.toString())
-          localStorage.setItem('useLastLogin', useLastLogin.value.toString())
-        }
-        localStorage.setItem('token', account.token)
+        account.passwordHash = ''
+        return
+      }
+      account.token = resp.responseResult.token
+      account.name = resp.responseResult.userName
+      account.userId = resp.responseResult.carOwner.userId
+      if (saveLogin.value === true) {
+        localStorage.setItem('username', account.username)
+        localStorage.setItem('name', account.name)
+        localStorage.setItem('passwordHash', account.passwordHash)
+        localStorage.setItem('userId', account.userId)
+        localStorage.setItem('saveLogin', saveLogin.value.toString())
+        localStorage.setItem('useLastLogin', useLastLogin.value.toString())
+      }
+      localStorage.setItem('token', account.token)
 
-        setTimeout(() => {
-          activeTab.value = 1
-        }, 100)
-      })
+      setTimeout(() => {
+        activeTab.value = 1
+      }, 100)
+    })
   }
 
   isLoading.value = false
@@ -231,7 +234,6 @@ onMounted(() => {
     loadVerifyCode()
   }
 })
-
 </script>
 
 <template>
@@ -270,21 +272,34 @@ onMounted(() => {
                 <VanImage
                   :src="`${account.verifyCodeImg}`"
                   id="captcha"
-                  @click="() => {
-                    loadVerifyCode()
-                  }"
+                  @click="
+                    () => {
+                      loadVerifyCode()
+                    }
+                  "
                 >
                   <template v-slot:loading>
-                    <van-loading type="spinner" size="20" />
+                    <van-loading
+                      type="spinner"
+                      size="20"
+                    />
                   </template>
-                </VanImage>                  
+                </VanImage>
               </template>
             </VanField>
             <VanCell>
-              <VanCheckbox v-model="saveLogin" style="margin: 5px 0">本機儲存登入資訊</VanCheckbox>
+              <VanCheckbox
+                v-model="saveLogin"
+                style="margin: 5px 0"
+                >本機儲存登入資訊</VanCheckbox
+              >
             </VanCell>
             <VanCell v-if="account.passwordHash !== '' && saveLogin === true">
-              <VanCheckbox v-model="useLastLogin" style="margin: 5px 0">使用上次登入</VanCheckbox>
+              <VanCheckbox
+                v-model="useLastLogin"
+                style="margin: 5px 0"
+                >使用上次登入</VanCheckbox
+              >
             </VanCell>
           </template>
         </VanCellGroup>
@@ -320,7 +335,10 @@ onMounted(() => {
             清除儲存資料
           </VanButton>
         </div>
-        <VanCellGroup v-if="account.token !== ''" title="登入訊息">
+        <VanCellGroup
+          v-if="account.token !== ''"
+          title="登入訊息"
+        >
           <VanField
             v-model="account.token"
             name="token"
@@ -330,8 +348,14 @@ onMounted(() => {
         </VanCellGroup>
       </VanTab>
       <!--<VanTab title="查詢">-->
-      <VanTab title="查詢" :disabled="account.token === ''">
-        <Enquiry ref="enquiryTab" :account="account" />
+      <VanTab
+        title="查詢"
+        :disabled="account.token === ''"
+      >
+        <Enquiry
+          ref="enquiryTab"
+          :account="account"
+        />
       </VanTab>
       <VanTab title="設定">
         <Settings ref="settingTab" />

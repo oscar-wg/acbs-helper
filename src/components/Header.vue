@@ -8,5 +8,4 @@ defineOptions({
   <VanNavBar title="澳車北上小助手" />
 </template>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

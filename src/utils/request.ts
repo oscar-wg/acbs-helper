@@ -30,9 +30,10 @@ instance.interceptors.response.use(
 export function request<T>(
   url: string,
   { method = 'GET', params = {}, options = {} } = {},
-  baseURL: string='',
+  baseURL: string = '',
 ): Promise<T> {
-  instance.defaults.baseURL = baseURL !== '' ? baseURL : (import.meta.env.VITE_APP_NOTIFY_API_HOST ?? '/')
+  instance.defaults.baseURL =
+    baseURL !== '' ? baseURL : import.meta.env.VITE_APP_NOTIFY_API_HOST ?? '/'
   method = method.toUpperCase()
 
   switch (method) {
