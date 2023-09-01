@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "node -r dotenv/config ./node_modules/.bin/vite",
     "build": "tsc && node -r dotenv/config ./node_modules/.bin/vite build",
-    "deploy": "netlify deploy --dir=dist --prod"
+    "deploy-netlify": "vite build && netlify deploy --dir=dist --prod"
   },
   "dependencies": {
     "@babel/types": "^7.22.10",
