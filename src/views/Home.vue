@@ -31,7 +31,6 @@ const account = reactive({
   appointmentDateEnd: new Date(),
   appointmentDateData: [],
   appointmentDateDataUpdate: '',
-  autoSearch: false,
 })
 
 const loadVerifyCode = async () => {

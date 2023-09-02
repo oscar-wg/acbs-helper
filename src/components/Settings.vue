@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, defineOptions, defineExpose } from 'vue'
+import { ref } from 'vue'
 
 defineOptions({
   name: 'Settings',

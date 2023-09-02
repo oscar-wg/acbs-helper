@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref, defineOptions, defineExpose, defineProps } from 'vue'
+import { ref } from 'vue'
 
 import { showNotify } from 'vant'
-import { getAppointmentDate, getLogin, getVerifyCode, sendApplyNotify } from '@/services/api'
+import { getAppointmentDate, sendApplyNotify } from '@/services/api'
 import { getAcbsJwt } from '@/utils/acbs'
 
 defineOptions({
@@ -19,7 +19,9 @@ const props = defineProps({
     default: null,
   },
 })
+
 const { account } = toRefs(props)
+const autoSearch = ref(false)
 const isLoading = ref(false)
 const updateSeconds = ref<[number, number]>([2, 5])
 
@@ -101,6 +103,7 @@ let autoJob: any = null
 let nextRunTime: Date = new Date()
 
 const autoJobCancel = () => {
+  autoSearch.value = false
   clearInterval(autoJob)
   autoJob = null
 }
@@ -111,7 +114,7 @@ const onChangeAutoSearch = (val: any) => {
 
     autoJob = setInterval(async () => {
       const currentTime = new Date()
-      if (currentTime.getTime() >= nextRunTime.getTime() && account.value.autoSearch === true) {
+      if (currentTime.getTime() >= nextRunTime.getTime() && autoSearch.value === true) {
         nextRunTime.setSeconds(new Date().getSeconds() + 9999)
         await onClickSearch()
         const randNum = randSecond(updateSeconds.value[0], updateSeconds.value[1])
@@ -140,7 +143,7 @@ defineExpose({
         <template #value>
           <VanSwitch
             @change="onChangeAutoSearch"
-            v-model="account.autoSearch"
+            v-model="autoSearch"
           />
         </template>
       </VanCell>
@@ -157,7 +160,7 @@ defineExpose({
           range
           button-size="12px"
           style="margin-top: 10px"
-          :disabled="account.autoSearch"
+          :disabled="autoSearch"
         />
         {{ `${updateSeconds[0]}s 至 ${updateSeconds[1]}s` }}
       </VanCell>
@@ -178,7 +181,7 @@ defineExpose({
       <VanButton
         @click="onClickSearch"
         :loading="isLoading"
-        :disabled="account.autoSearch"
+        :disabled="autoSearch"
         type="info"
         round
         block
