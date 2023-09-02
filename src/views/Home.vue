@@ -355,6 +355,7 @@ onMounted(() => {
         <Enquiry
           ref="enquiryTab"
           :account="account"
+          :logout="onClickLogout"
         />
       </VanTab>
       <VanTab title="設定">

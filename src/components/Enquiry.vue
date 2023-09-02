@@ -14,6 +14,10 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  logout: {
+    type: Function,
+    default: null,
+  },
 })
 const { account } = toRefs(props)
 const isLoading = ref(false)
@@ -40,7 +44,9 @@ const onClickSearch = async () => {
         showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
 
         if (resp.responseCode === 802) {
-          onClickLogout()
+          if (props.logout) {
+            props.logout()
+          }
         }
         return
       }
@@ -105,7 +111,7 @@ const onChangeAutoSearch = (val: any) => {
 
     autoJob = setInterval(async () => {
       const currentTime = new Date()
-      if (currentTime.getTime() >= nextRunTime.getTime() && account.autoSearch === true) {
+      if (currentTime.getTime() >= nextRunTime.getTime() && account.value.autoSearch === true) {
         nextRunTime.setSeconds(new Date().getSeconds() + 9999)
         await onClickSearch()
         const randNum = randSecond(updateSeconds.value[0], updateSeconds.value[1])
@@ -117,9 +123,7 @@ const onChangeAutoSearch = (val: any) => {
   }
 }
 
-onMounted(() => {
-  console.log(account.value)
-})
+onMounted(() => {})
 
 defineExpose({
   autoJobCancel,
