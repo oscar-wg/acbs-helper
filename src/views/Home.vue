@@ -26,11 +26,6 @@ const account = reactive({
   token: '',
   userId: '',
   name: '',
-  appointmentDateJwt: '',
-  appointmentDateStart: new Date(),
-  appointmentDateEnd: new Date(),
-  appointmentDateData: [],
-  appointmentDateDataUpdate: '',
 })
 
 const loadVerifyCode = async () => {

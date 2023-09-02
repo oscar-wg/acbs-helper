@@ -22,6 +22,13 @@ const props = defineProps({
 
 const { account } = toRefs(props)
 const autoSearch = ref(false)
+const appointmentDate = reactive({
+  jwt: '',
+  start: new Date(),
+  end: new Date(),
+  data: [],
+  lastUpdate: '',
+})
 const isLoading = ref(false)
 const updateSeconds = ref<[number, number]>([2, 5])
 
@@ -30,17 +37,14 @@ const onClickSearch = async () => {
   const today = new Date()
   const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
   const currentTimeStr = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`
-  if (account.value.appointmentDateJwt === '') {
-    account.value.appointmentDateJwt = getAcbsJwt({
+  if (appointmentDate.jwt === '') {
+    appointmentDate.jwt = getAcbsJwt({
       appointmentType: 'passBooking',
       direction: 'S',
       iss: account.value.uuid,
     })
   }
-  await getAppointmentDate(
-    { jwt: account.value.appointmentDateJwt, _method: 'POST' },
-    account.value.token,
-  )
+  await getAppointmentDate({ jwt: appointmentDate.jwt, _method: 'POST' }, account.value.token)
     .then(resp => {
       if (resp.responseCode !== 200) {
         showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
@@ -53,40 +57,39 @@ const onClickSearch = async () => {
         return
       }
 
-      account.value.appointmentDateData = resp.responseResult.appointmentDateList
-      account.value.appointmentDateDataUpdate = `${todayStr} ${currentTimeStr}`
+      appointmentDate.data = resp.responseResult.appointmentDateList
+      appointmentDate.lastUpdate = `${todayStr} ${currentTimeStr}`
     })
     .finally(() => {
       isLoading.value = false
     })
 
-  if (account.value.appointmentDateData !== null) {
-    for (const info of account.value.appointmentDateData) {
+  if (appointmentDate.data !== null) {
+    for (const info of appointmentDate.data) {
       const temp: any = info
       const tempDate = new Date(temp.appointmentDateRef)
-      if (account.value.appointmentDateStart > tempDate) {
-        account.value.appointmentDateStart = tempDate
+      if (appointmentDate.start > tempDate) {
+        appointmentDate.start = tempDate
       }
-      if (account.value.appointmentDateEnd < tempDate) {
-        account.value.appointmentDateEnd = tempDate
+      if (appointmentDate.end < tempDate) {
+        appointmentDate.end = tempDate
       }
     }
   }
 
   if (
-    account.value.appointmentDateData.filter((r: any) => parseInt(r.applyNum) !== parseInt(r.quota))
-      .length > 0
+    appointmentDate.data.filter((r: any) => parseInt(r.applyNum) !== parseInt(r.quota)).length > 0
   ) {
     showNotify({ type: 'success', message: `有位！` })
     sendApplyNotify({
-      data: account.value.appointmentDateData,
+      data: appointmentDate.data,
       chatId: localStorage.getItem('tgNotify') ? localStorage.getItem('tgChatId') : '',
     })
   }
 }
 
 const calendarFormatter = (day: any) => {
-  for (const info of account.value.appointmentDateData) {
+  for (const info of appointmentDate.data) {
     const temp: any = info
     if (new Date(temp.appointmentDateRef).toLocaleDateString() === day.date.toLocaleDateString()) {
       day.bottomInfo = (parseInt(temp.quota) - parseInt(temp.applyNum)).toString()
@@ -104,6 +107,7 @@ let nextRunTime: Date = new Date()
 
 const autoJobCancel = () => {
   autoSearch.value = false
+  appointmentDate.jwt = ''
   clearInterval(autoJob)
   autoJob = null
 }
@@ -165,13 +169,13 @@ defineExpose({
         {{ `${updateSeconds[0]}s 至 ${updateSeconds[1]}s` }}
       </VanCell>
       <VanCell title="最後更新時間">
-        {{ account.appointmentDateDataUpdate }}
+        {{ appointmentDate.lastUpdate }}
       </VanCell>
       <VanCell title="是否有空位">
         {{
-          account.appointmentDateData.length === 0
+          appointmentDate.data.length === 0
             ? ''
-            : account.appointmentDateData.some((r: any) => r.quota !== r.applyNum)
+            : appointmentDate.data.some((r: any) => r.quota !== r.applyNum)
             ? '有'
             : '沒有'
         }}
@@ -192,8 +196,8 @@ defineExpose({
     <VanCalendar
       :poppable="false"
       :show-confirm="false"
-      :min-date="account.appointmentDateStart"
-      :max-date="account.appointmentDateEnd"
+      :min-date="appointmentDate.start"
+      :max-date="appointmentDate.end"
       :formatter="calendarFormatter"
       title="日曆"
     />
