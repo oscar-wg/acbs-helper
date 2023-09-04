@@ -38,16 +38,16 @@ export function request<T>(
 
   switch (method) {
     case 'GET':
-      return instance.get(url, { params })
+      return instance.get(url, { params, ...options })
 
     case 'POST':
       return instance.post(url, params, options)
 
     case 'DELETE':
-      return instance.delete(url, { params })
+      return instance.delete(url, { params, ...options })
 
     case 'PUT':
-      return instance.put(url, params)
+      return instance.put(url, params, options)
 
     default:
       return Promise.reject(new Error(`Unknown request method: ${method}`))

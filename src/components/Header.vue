@@ -9,6 +9,7 @@ const showSetting = ref(false)
 <template>
   <VanNavBar
     title="澳車北上小助手"
+    fixed
     @click-right="showSetting = true"
   >
     <template #right>

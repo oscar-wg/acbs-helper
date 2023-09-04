@@ -25,6 +25,7 @@ const account = reactive({
   token: '',
   userId: '',
   name: '',
+  appointmentDates: [],
 })
 
 const loadVerifyCode = async () => {
@@ -226,150 +227,151 @@ onMounted(() => {
 <template>
   <div class="home">
     <Header />
-    <VanTabs
-      v-model:active="activeTab"
-      animated
-      scrollspy
-    >
-      <VanTab title="登入">
-        <VanCellGroup title="賬戶資料">
-          <VanField
-            v-model="account.username"
-            :rules="[{ required: true, message: '填寫賬戶' }]"
-            :disabled="account.token !== ''"
-            name="username"
-            type="email"
-            label="賬戶"
-            placeholder="賬戶"
-          />
-          <template v-if="account.token === ''">
+    <div style="margin-top: 46px">
+      <VanTabs
+        v-model:active="activeTab"
+        animated
+      >
+        <VanTab title="登入">
+          <VanCellGroup title="賬戶資料">
             <VanField
-              v-model="account.password"
-              v-if="useLastLogin == false"
-              :rules="[{ required: true, message: '填寫密碼' }]"
-              type="password"
-              name="current-password"
-              label="密碼"
-              autocomplete="off"
+              v-model="account.username"
+              :rules="[{ required: true, message: '填寫賬戶' }]"
+              :disabled="account.token !== ''"
+              name="username"
+              type="email"
+              label="賬戶"
+              placeholder="賬戶"
+            />
+            <template v-if="account.token === ''">
+              <VanField
+                v-model="account.password"
+                v-if="useLastLogin == false"
+                :rules="[{ required: true, message: '填寫密碼' }]"
+                type="password"
+                name="current-password"
+                label="密碼"
+                autocomplete="off"
+              />
+              <VanField
+                v-model="account.verifyCode"
+                :disabled="account.verifyCodeImg === ''"
+                name="verify-code"
+                label="驗證碼"
+                center
+              >
+                <template #right-icon>
+                  <VanImage
+                    :src="`${account.verifyCodeImg}`"
+                    id="captcha"
+                    @click="
+                      () => {
+                        loadVerifyCode()
+                      }
+                    "
+                  >
+                    <template v-slot:loading>
+                      <van-loading
+                        type="spinner"
+                        size="20"
+                      />
+                    </template>
+                  </VanImage>
+                </template>
+              </VanField>
+              <VanCell>
+                <VanCheckbox
+                  v-model="saveLogin"
+                  style="margin: 5px 0"
+                  >本機儲存登入資訊</VanCheckbox
+                >
+              </VanCell>
+              <VanCell v-if="account.passwordHash !== '' && saveLogin === true">
+                <VanCheckbox
+                  v-model="useLastLogin"
+                  style="margin: 5px 0"
+                  >使用上次登入</VanCheckbox
+                >
+              </VanCell>
+            </template>
+          </VanCellGroup>
+          <div style="margin: 16px">
+            <VanButton
+              @click="onClickLogin"
+              v-if="account.token === ''"
+              :loading="isLoading"
+              :disabled="account.verifyCodeImg === ''"
+              type="primary"
+              round
+              block
+            >
+              登入
+            </VanButton>
+            <VanButton
+              @click="onClickLogout"
+              v-else
+              type="primary"
+              round
+              block
+            >
+              登出
+            </VanButton>
+          </div>
+          <div style="margin: 16px">
+            <VanButton
+              @click="onClickClearStorage"
+              type="info"
+              round
+              block
+            >
+              清除儲存資料
+            </VanButton>
+          </div>
+          <VanCellGroup
+            v-if="account.token !== ''"
+            title="登入訊息"
+          >
+            <VanField
+              v-model="account.name"
+              name="name"
+              label="用戶名稱"
+              disabled
             />
             <VanField
-              v-model="account.verifyCode"
-              :disabled="account.verifyCodeImg === ''"
-              name="verify-code"
-              label="驗證碼"
-              center
-            >
-              <template #right-icon>
-                <VanImage
-                  :src="`${account.verifyCodeImg}`"
-                  id="captcha"
-                  @click="
-                    () => {
-                      loadVerifyCode()
-                    }
-                  "
-                >
-                  <template v-slot:loading>
-                    <van-loading
-                      type="spinner"
-                      size="20"
-                    />
-                  </template>
-                </VanImage>
-              </template>
-            </VanField>
-            <VanCell>
-              <VanCheckbox
-                v-model="saveLogin"
-                style="margin: 5px 0"
-                >本機儲存登入資訊</VanCheckbox
-              >
-            </VanCell>
-            <VanCell v-if="account.passwordHash !== '' && saveLogin === true">
-              <VanCheckbox
-                v-model="useLastLogin"
-                style="margin: 5px 0"
-                >使用上次登入</VanCheckbox
-              >
-            </VanCell>
-          </template>
-        </VanCellGroup>
-        <div style="margin: 16px">
-          <VanButton
-            @click="onClickLogin"
-            v-if="account.token === ''"
-            :loading="isLoading"
-            :disabled="account.verifyCodeImg === ''"
-            type="primary"
-            round
-            block
-          >
-            登入
-          </VanButton>
-          <VanButton
-            @click="onClickLogout"
-            v-else
-            type="primary"
-            round
-            block
-          >
-            登出
-          </VanButton>
-        </div>
-        <div style="margin: 16px">
-          <VanButton
-            @click="onClickClearStorage"
-            type="info"
-            round
-            block
-          >
-            清除儲存資料
-          </VanButton>
-        </div>
-        <VanCellGroup
-          v-if="account.token !== ''"
-          title="登入訊息"
+              v-model="account.token"
+              name="token"
+              label="TOKEN"
+              disabled
+            />
+          </VanCellGroup>
+        </VanTab>
+        <!--<VanTab title="查詢">-->
+        <VanTab
+          title="查詢"
+          :disabled="account.token === ''"
         >
-          <VanField
-            v-model="account.name"
-            name="name"
-            label="用戶名稱"
-            disabled
+          <Enquiry
+            ref="enquiryTab"
+            :account="account"
+            :logout="onClickLogout"
           />
-          <VanField
-            v-model="account.token"
-            name="token"
-            label="TOKEN"
-            disabled
-          />
-        </VanCellGroup>
-      </VanTab>
-      <!--<VanTab title="查詢">-->
-      <VanTab
-        title="查詢"
-        :disabled="account.token === ''"
-      >
-        <Enquiry
-          ref="enquiryTab"
-          :account="account"
-          :logout="onClickLogout"
+        </VanTab>
+        <VanTab
+          disabled
+          title-class="apply-tab"
+          title="快速申請"
+          badge="PRO"
         />
-      </VanTab>
-      <VanTab disabled>
-        <template #title>
-          <van-badge :offset="[15, 3]">
-            <template #content>
-              <span>PRO</span>
-            </template>
-            {{ '快速申請' }}
-          </van-badge>
-        </template>
-        <!-- TODO: in another version -->
-      </VanTab>
-      <VanTab title="說明">
-        <Description />
-      </VanTab>
-    </VanTabs>
+        <!--
+        <VanTab :disabled="account.token === ''" title-class="apply-tab" title="快速申請" badge="PRO">
+          <Apply v-if="account.token !== ''" :account="account" :logout="onClickLogout" />
+        </VanTab>
+        -->
+        <VanTab title="說明">
+          <Description />
+        </VanTab>
+      </VanTabs>
+    </div>
     <Footer />
   </div>
 </template>
@@ -381,6 +383,10 @@ onMounted(() => {
   flex-direction: column;
   height: 100%;
   font-size: 14px;
+
+  .van-tab__text--ellipsis {
+    overflow: visible;
+  }
 
   .van-cell {
     justify-content: space-between;
@@ -398,6 +404,10 @@ onMounted(() => {
   a {
     color: inherit;
     text-decoration: inherit;
+  }
+
+  .apply-tab .van-badge--top-right {
+    right: -16px;
   }
 }
 </style>

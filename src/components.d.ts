@@ -7,6 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Apply: (typeof import('./components/Apply.vue'))['default']
+    copy: (typeof import('./components/Enquiry copy.vue'))['default']
     Description: (typeof import('./components/Description.vue'))['default']
     Enquiry: (typeof import('./components/Enquiry.vue'))['default']
     Footer: (typeof import('./components/Footer.vue'))['default']

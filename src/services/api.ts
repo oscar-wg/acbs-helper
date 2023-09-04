@@ -45,7 +45,46 @@ export function getAppointmentDate(params: any, token: string): Promise<any> {
       params,
       method: 'POST',
       options: {
-        headers: { 'content-type': 'application/x-www-form-urlencoded', 'X-Access-Token': token },
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'X-Access-Token': token,
+        },
+      },
+    },
+    apiMethod === 'proxy' ? proxyHost : directHost,
+  )
+}
+
+export function getVehicleInfo(params: any, token: string): Promise<any> {
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
+  return request<any>(
+    `before/sys/appointment/getPassQualification`,
+    {
+      params,
+      method: 'POST',
+      options: {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'X-Access-Token': token,
+        },
+      },
+    },
+    apiMethod === 'proxy' ? proxyHost : directHost,
+  )
+}
+
+export function getVerifySlider(params: any, token: string): Promise<any> {
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
+  return request<any>(
+    `before/sys/captcha/getPassBookingVerifyComplexImage`,
+    {
+      params,
+      method: 'GET',
+      options: {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'X-Access-Token': token,
+        },
       },
     },
     apiMethod === 'proxy' ? proxyHost : directHost,
