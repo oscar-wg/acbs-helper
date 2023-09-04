@@ -9,7 +9,6 @@ defineOptions({
   name: 'Home',
 })
 
-const settingTab = ref<any>(null)
 const enquiryTab = ref<any>(null)
 const isLoading = ref(false)
 const activeTab = ref(0)
@@ -153,13 +152,6 @@ const onClickLogout = async () => {
   activeTab.value = 0
 
   localStorage.removeItem('token')
-  if (saveLogin.value === false) {
-    localStorage.removeItem('tgChatId')
-    localStorage.removeItem('tgNotify')
-    if (settingTab.value) {
-      settingTab.value.init()
-    }
-  }
   loadVerifyCode()
 }
 
@@ -171,6 +163,7 @@ const onClickClearStorage = async () => {
   localStorage.removeItem('useLastLogin')
   localStorage.removeItem('tgChatId')
   localStorage.removeItem('tgNotify')
+  localStorage.removeItem('token')
 
   window.location.href = '/'
 }
@@ -233,7 +226,11 @@ onMounted(() => {
 <template>
   <div class="home">
     <Header />
-    <VanTabs v-model:active="activeTab">
+    <VanTabs
+      v-model:active="activeTab"
+      animated
+      scrollspy
+    >
       <VanTab title="登入">
         <VanCellGroup title="賬戶資料">
           <VanField
@@ -334,6 +331,12 @@ onMounted(() => {
           title="登入訊息"
         >
           <VanField
+            v-model="account.name"
+            name="name"
+            label="用戶名稱"
+            disabled
+          />
+          <VanField
             v-model="account.token"
             name="token"
             label="TOKEN"
@@ -352,8 +355,16 @@ onMounted(() => {
           :logout="onClickLogout"
         />
       </VanTab>
-      <VanTab title="設定">
-        <Settings ref="settingTab" />
+      <VanTab disabled>
+        <template #title>
+          <van-badge :offset="[15, 3]">
+            <template #content>
+              <span>PRO</span>
+            </template>
+            {{ '快速申請' }}
+          </van-badge>
+        </template>
+        <!-- TODO: in another version -->
       </VanTab>
       <VanTab title="說明">
         <Description />

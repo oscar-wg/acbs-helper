@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { type } from 'os'
+import { showNotify } from 'vant'
 import { ref } from 'vue'
 
 defineOptions({
@@ -17,6 +19,14 @@ const init = () => {
 const onChangeTgNotify = (val: any) => {
   localStorage.setItem('tgNotify', val)
   if (val === true) {
+    if (tgChatId.value === '') {
+      showNotify({
+        message: '請輸入Chat ID',
+        type: 'danger',
+      })
+      tgNotify.value = false
+      return
+    }
     localStorage.setItem('tgChatId', tgChatId.value)
   } else {
     localStorage.removeItem('tgChatId')
@@ -80,13 +90,12 @@ defineExpose({
         placeholder="@acbshelper_bot聯天室的Chat ID "
       />
       <VanCell
-        title="啟動自動通知"
+        title="開啟自動通知"
         center
       >
         <template #right-icon>
           <VanSwitch
             v-model="tgNotify"
-            :disabled="tgChatId === ''"
             @change="onChangeTgNotify"
           />
         </template>

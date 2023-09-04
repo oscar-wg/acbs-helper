@@ -2,10 +2,30 @@
 defineOptions({
   name: 'Header',
 })
+
+const showSetting = ref(false)
 </script>
 
 <template>
-  <VanNavBar title="澳車北上小助手" />
+  <VanNavBar
+    title="澳車北上小助手"
+    @click-right="showSetting = true"
+  >
+    <template #right>
+      <van-icon
+        name="setting-o"
+        size="18"
+      />
+    </template>
+  </VanNavBar>
+  <VanPopup
+    v-model:show="showSetting"
+    closeable
+    position="bottom"
+    style="background-color: #f7f8fa"
+  >
+    <Settings style="margin-top: 30px" />
+  </VanPopup>
 </template>
 
 <style lang="scss"></style>
