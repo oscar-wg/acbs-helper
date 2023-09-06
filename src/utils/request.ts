@@ -3,10 +3,24 @@ import { showNotify } from 'vant'
 
 axios.defaults.timeout = 5 * 60 * 1000
 
+const directHost = 'https://macaoapply.singlewindow.gd.cn'
+const defaultProxyHost = import.meta.env.VITE_APP_PROXY_HOST ?? ''
+const notifyApiHost = import.meta.env.VITE_APP_NOTIFY_API_HOST ?? ''
+
 const instance = axios.create()
 
 instance.interceptors.request.use(
   config => {
+    if (config.url?.includes('before/')) {
+      let apiMethod = localStorage.getItem('apiMethod') ?? 'direct'
+      let host = directHost
+      if (apiMethod === 'proxy') {
+        host = defaultProxyHost !== '' ? defaultProxyHost : localStorage.getItem('proxyHost')
+      }
+      config.baseURL = host
+    } else {
+      config.baseURL = notifyApiHost
+    }
     const token = localStorage.getItem('token') ?? null
     if (token !== null) {
       config.headers['X-Access-Token'] = token
@@ -36,10 +50,7 @@ export function request<T>(
   { method = 'GET', params = {}, options = {} } = {},
   baseURL: string = '',
 ): Promise<T> {
-  instance.defaults.baseURL =
-    baseURL !== '' ? baseURL : import.meta.env.VITE_APP_NOTIFY_API_HOST ?? '/'
   method = method.toUpperCase()
-
   switch (method) {
     case 'GET':
       return instance.get(url, { params, ...options })

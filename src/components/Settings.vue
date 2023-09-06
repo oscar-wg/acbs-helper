@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { type } from 'os'
 import { showNotify } from 'vant'
 import { ref } from 'vue'
 
@@ -10,8 +9,8 @@ defineOptions({
 const apiMethod = ref('direct')
 const tgNotify = ref(false)
 const tgChatId = ref('')
-const proxyHost = ref('https://acbs-proxy.vercel.app/')
-const directHost = 'https://macaoapply.singlewindow.gd.cn/'
+const proxyHost = ref('https://acbs-proxy.vercel.app')
+const directHost = 'https://macaoapply.singlewindow.gd.cn'
 
 const init = () => {
   tgNotify.value = false

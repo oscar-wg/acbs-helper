@@ -11,45 +11,27 @@ export function sendApplyNotify(params: any): Promise<any> {
 }
 
 const acbsPost = (url: string, params: any): Promise<any> => {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'direct'
-  let host = directHost
-  if (apiMethod === 'proxy') {
-    host = defaultProxyHost !== '' ? defaultProxyHost : localStorage.getItem('proxyHost')
-  }
-  return request<any>(
-    url,
-    {
-      params,
-      method: 'POST',
-      options: {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-        },
+  return request<any>(url, {
+    params,
+    method: 'POST',
+    options: {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
       },
     },
-    host,
-  )
+  })
 }
 
 const acbsGet = (url: string, params: any): Promise<any> => {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
-  let host = directHost
-  if (apiMethod === 'proxy') {
-    host = defaultProxyHost !== '' ? defaultProxyHost : localStorage.getItem('proxyHost')
-  }
-  return request<any>(
-    url,
-    {
-      params,
-      method: 'GET',
-      options: {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-        },
+  return request<any>(url, {
+    params,
+    method: 'GET',
+    options: {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
       },
     },
-    host,
-  )
+  })
 }
 
 export function getVerifyCode(params: any): Promise<any> {
