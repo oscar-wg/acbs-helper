@@ -6,7 +6,7 @@ defineOptions({
   name: 'Settings',
 })
 
-const apiMethod = ref('direct')
+const apiMethod = ref('proxy')
 const tgNotify = ref(false)
 const tgChatId = ref('')
 const proxyHost = ref('https://acbs-proxy.vercel.app')
