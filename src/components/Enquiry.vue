@@ -31,8 +31,9 @@ const appointment = reactive({
 const isLoading = ref(false)
 const updateSeconds = ref<[number, number]>([2, 5])
 
-const onClickSearch = async () => {
+const onClickSearch = async (callback: Function | null = null) => {
   isLoading.value = true
+  account.value.appointmentDates = []
   const today = new Date()
   const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
   const currentTimeStr = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`
@@ -43,7 +44,7 @@ const onClickSearch = async () => {
       iss: account.value.uuid,
     })
   }
-  await getAppointmentDate({ jwt: appointment.jwt, _method: 'POST' }, account.value.token)
+  await getAppointmentDate({ jwt: appointment.jwt, _method: 'POST' })
     .then(resp => {
       if (resp.responseCode !== 200) {
         showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
@@ -55,9 +56,14 @@ const onClickSearch = async () => {
         }
         return
       }
-
-      account.value.appointmentDates = resp.responseResult.appointmentDateList
+      const temp: any[] = []
+      resp.responseResult.appointmentDateList.map((r: any) => temp.push(r))
+      console.log(
+        temp.sort((a: any, b: any) => parseInt(b.appointmentDate) - parseInt(a.appointmentDate))[0],
+      )
+      account.value.appointmentDates = temp
       appointment.lastUpdate = `${todayStr} ${currentTimeStr}`
+      if (callback !== null) callback()
     })
     .finally(() => {
       isLoading.value = false
@@ -120,7 +126,11 @@ const onChangeAutoSearch = (val: any) => {
       const currentTime = new Date()
       if (currentTime.getTime() >= nextRunTime.getTime() && autoSearch.value === true) {
         nextRunTime.setSeconds(new Date().getSeconds() + 9999)
-        await onClickSearch()
+        try {
+          await onClickSearch()
+        } catch (e) {
+          console.log(e)
+        }
         const randNum = randSecond(updateSeconds.value[0], updateSeconds.value[1])
         nextRunTime.setTime(new Date().getTime() + randNum * 1000)
       }
@@ -187,7 +197,7 @@ defineExpose({
         @click="onClickSearch"
         :loading="isLoading"
         :disabled="autoSearch"
-        type="info"
+        type="default"
         round
         block
       >

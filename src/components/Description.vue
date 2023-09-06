@@ -16,9 +16,41 @@ defineOptions({
             感謝您使用開源網站"澳車北上小助手"，本網站的開發旨在為澳門市民提供方便快捷查詢方式。
           </p>
           <p>
+            本網頁非網絡攻擊工具，純粹改寫原網站介面及使用方式，提供更好、更簡化的使用方法。
             市民可以使用本網站快速查詢申請餘額，或開啟自動定時查詢
-            （需要保持網頁開啟），可以設定Telegarm訊息通知讓你第一時間收到餘額通知。本網站中的API請求是由用戶端網絡發起至「"澳車北上"信息管理服务系统」網站，本網站不存在伺服器（無伺服器）進行任何網絡攻擊之行為，請仔細閱讀免責聲明，善意使用工具，維護網絡秩序。
+            （需要保持網頁開啟），可以設定Telegarm訊息通知讓你第一時間收到餘額通知。請仔細閱讀免責聲明，善意使用工具，維護網絡秩序。
           </p>
+        </div>
+      </VanCell>
+    </VanCellGroup>
+    <VanCellGroup
+      class="desc"
+      title="直連教學"
+    >
+      <VanCell>
+        <div class="disc">
+          <p>
+            右上角的設定 -> API ->
+            直連，可將網頁的API設定為直連模式，由於原網站API有CORS（跨域源資源共用）限制，請使用瀏覧器安裝"Allow
+            CORS"之類的插件，即可以用。
+          </p>
+          <p>優點：速度快、不會被判定為異常網絡行為</p>
+          <p>缺點：需要安裝插件、移動端難以使用</p>
+        </div>
+      </VanCell>
+    </VanCellGroup>
+    <VanCellGroup
+      class="desc"
+      title="Proxy教學"
+    >
+      <VanCell>
+        <div class="disc">
+          <p>
+            右上角的設定 -> API -> CORS
+            Proxy，可將網頁的API設定為Proxy模式，可以使用作者自建的免費Proxy，或使用自行設置的Proxy地址。
+          </p>
+          <p>優點：任何設備都適用、無需插件、若自建廣東伺服器可以加速連線</p>
+          <p>缺點：速度較直連慢、若使用公共Proxy可以被原網站判定為異常網絡行為</p>
         </div>
       </VanCell>
     </VanCellGroup>
@@ -27,12 +59,7 @@ defineOptions({
         <div class="disc">
           <p>
             此網站使用無伺服器設計
-            （無伺服器不包括Telegarm通知功能），目的是讓使用者終端直接調用「"澳車北上"信息管理服务系统」提供的API，減少私隱安全疑慮，開發代碼已開源於Github上，有興趣的人士也可自行下載搭建，觀迎各界人士提供指導。
-          </p>
-          <p>
-            由於「"澳車北上"信息管理服务系统」API有CORS（跨域源資源共用）限制，此演示有直連或Proxy的設定，假如您的瀏覧器有安裝"Allow
-            CORS"之類的插件，可以使用直連。Proxy版由作者托管的Nignx Reverse
-            Proxy，只作為API請求轉發，如不信任請不要使用Proxy。
+            （無伺服器不包括Telegarm通知功能），目的是讓使用者終端直接調用「"澳車北上"信息管理服务系统」提供的API，開發代碼已開源於Github上，有興趣的人士也可自行下載搭建，觀迎各界人士提供指導。
           </p>
           <p>
             <a
@@ -41,6 +68,10 @@ defineOptions({
               style="text-decoration: underline"
               >源代碼地址</a
             >
+          </p>
+          <p>
+            由於「"澳車北上"信息管理服务系统」API有CORS（跨域源資源共用）限制，此演示有直連或Proxy的設定，假如您的瀏覧器有安裝"Allow
+            CORS"之類的插件，可以使用直連。Proxy版由作者托管的Proxy或自建Proxy，只作為API請求轉發，如不信任請不要使用Proxy。
           </p>
         </div>
       </VanCell>

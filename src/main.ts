@@ -4,6 +4,7 @@ import App from '@/App.vue'
 import router from '@/router'
 import { Buffer } from 'buffer'
 
+import '@vant/touch-emulator'
 import 'vant/es/toast/style'
 import 'vant/es/notify/style'
 import '@/styles/style.scss'

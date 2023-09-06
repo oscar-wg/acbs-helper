@@ -7,9 +7,11 @@ defineOptions({
   name: 'Settings',
 })
 
-const apiMethod = ref('proxy')
+const apiMethod = ref('direct')
 const tgNotify = ref(false)
 const tgChatId = ref('')
+const proxyHost = ref('https://acbs-proxy.vercel.app/')
+const directHost = 'https://macaoapply.singlewindow.gd.cn/'
 
 const init = () => {
   tgNotify.value = false
@@ -35,6 +37,13 @@ const onChangeTgNotify = (val: any) => {
 
 const onChangeApiMethod = (val: string) => {
   localStorage.setItem('apiMethod', val)
+  if (val === 'proxy') {
+    onChangeProxyHost(null)
+  }
+}
+
+const onChangeProxyHost = (event: any) => {
+  localStorage.setItem('proxyHost', proxyHost.value)
 }
 
 onMounted(() => {
@@ -50,6 +59,12 @@ onMounted(() => {
   temp = localStorage.getItem('apiMethod')
   if (temp !== undefined && temp !== null && temp !== '') {
     apiMethod.value = temp
+  } else {
+    localStorage.setItem('apiMethod', apiMethod.value)
+  }
+  temp = localStorage.getItem('proxyHost')
+  if (temp !== undefined && temp !== null && temp !== '') {
+    proxyHost.value = temp
   }
 })
 
@@ -60,7 +75,7 @@ defineExpose({
 
 <template>
   <div class="settings">
-    <VanCellGroup title="API">
+    <VanCellGroup title="API(更改後請重新整理頁面)">
       <VanCell
         title="請求方法"
         center
@@ -75,11 +90,27 @@ defineExpose({
             <VanRadio
               name="proxy"
               style="margin-top: 5px"
-              >Reverse Proxy</VanRadio
+              >CORS Proxy</VanRadio
             >
           </VanRadioGroup>
         </template>
       </VanCell>
+      <VanField
+        v-if="apiMethod === 'proxy'"
+        v-model="proxyHost"
+        label="Proxy地址"
+        type="text"
+        placeholder="https://proxy.abc/"
+        @blur="onChangeProxyHost"
+      />
+      <VanField
+        v-if="apiMethod === 'direct'"
+        v-model="directHost"
+        label="直連地址"
+        type="text"
+        value="abc"
+        disabled
+      />
     </VanCellGroup>
     <VanCellGroup title="Telegarm">
       <VanField

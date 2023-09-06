@@ -14,7 +14,7 @@ defineOptions({
         &copy; Copyright 2023
         <a
           target="_blank"
-          href="https://github.com/oscar-wg"
+          href="https://github.com/oscar-wg/acbs-helper"
           >oscar-wg</a
         >
       </div>

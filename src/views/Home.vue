@@ -10,6 +10,7 @@ defineOptions({
 })
 
 const enquiryTab = ref<any>(null)
+const applyTab = ref<any>(null)
 const isLoading = ref(false)
 const activeTab = ref(0)
 const saveLogin = ref(false)
@@ -26,6 +27,9 @@ const account = reactive({
   userId: '',
   name: '',
   appointmentDates: [],
+})
+const appointmentDatePicker = reactive({
+  show: false,
 })
 
 const loadVerifyCode = async () => {
@@ -165,11 +169,12 @@ const onClickClearStorage = async () => {
   localStorage.removeItem('tgChatId')
   localStorage.removeItem('tgNotify')
   localStorage.removeItem('token')
+  localStorage.removeItem('proxyHost')
 
   window.location.href = '/'
 }
 
-onMounted(() => {
+onMounted(async () => {
   let temp = localStorage.getItem('uuid')
   if (temp === undefined || temp === null || temp === '') {
     temp = $utils.uuid()
@@ -219,7 +224,7 @@ onMounted(() => {
   }
 
   if (account.token === '') {
-    loadVerifyCode()
+    setTimeout(loadVerifyCode, 200)
   }
 })
 </script>
@@ -320,7 +325,7 @@ onMounted(() => {
           <div style="margin: 16px">
             <VanButton
               @click="onClickClearStorage"
-              type="info"
+              type="default"
               round
               block
             >
@@ -351,28 +356,64 @@ onMounted(() => {
           :disabled="account.token === ''"
         >
           <Enquiry
+            v-if="account.token !== ''"
             ref="enquiryTab"
             :account="account"
             :logout="onClickLogout"
           />
         </VanTab>
         <VanTab
-          disabled
+          :disabled="account.token === ''"
           title-class="apply-tab"
           title="快速申請"
           badge="PRO"
-        />
-        <!--
-        <VanTab :disabled="account.token === ''" title-class="apply-tab" title="快速申請" badge="PRO">
-          <Apply v-if="account.token !== ''" :account="account" :logout="onClickLogout" />
+        >
+          <Apply
+            v-if="account.token !== ''"
+            ref="applyTab"
+            :account="account"
+            :logout="onClickLogout"
+            :appointmentPickerToggle="
+              (val: boolean = !appointmentDatePicker.show) => {
+                appointmentDatePicker.show = val
+              }
+            "
+            :updateAppointment="enquiryTab.enquiry"
+          />
         </VanTab>
-        -->
         <VanTab title="說明">
           <Description />
         </VanTab>
       </VanTabs>
     </div>
     <Footer />
+    <VanPopup
+      v-model:show="appointmentDatePicker.show"
+      position="bottom"
+    >
+      <VanPicker
+        title="預約日期"
+        :columns="
+          account.appointmentDates.map((r: any) => {
+            return {
+              text:
+                r.appointmentDateRef + ' / 剩餘位置: ' + (parseInt(r.applyNum) - parseInt(r.quota)),
+              value: r.appointmentDateRef,
+              // disabled: (parseInt(r.applyNum) - parseInt(r.quota)) <= 0
+            }
+          }) /* .filter(r => r.disabled !== true) */
+        "
+        :swipe-duration="0"
+        confirm-button-text="確定"
+        cancel-button-text="取消"
+        @cancel="appointmentDatePicker.show = false"
+        @confirm="
+          val => {
+            applyTab.changeApplyDate(val)
+          }
+        "
+      />
+    </VanPopup>
   </div>
 </template>
 
@@ -393,6 +434,7 @@ onMounted(() => {
 
     .van-cell__title {
       width: var(--van-field-label-width) !important;
+      margin-right: var(--van-field-label-margin-right);
       flex: none;
     }
   }

@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-const proxyHost = import.meta.env.VITE_APP_PROXY_HOST ?? '/'
+const defaultProxyHost = import.meta.env.VITE_APP_PROXY_HOST ?? ''
 const directHost = 'https://macaoapply.singlewindow.gd.cn/'
 
 export function sendApplyNotify(params: any): Promise<any> {
@@ -10,83 +10,84 @@ export function sendApplyNotify(params: any): Promise<any> {
   })
 }
 
-export function getVerifyCode(params: any): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
+const acbsPost = (url: string, params: any, token: string | null = null): Promise<any> => {
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'direct'
+  let host = directHost
+  if (apiMethod === 'proxy') {
+    host = defaultProxyHost !== '' ? defaultProxyHost : localStorage.getItem('proxyHost')
+  }
   return request<any>(
-    `before/sys/verifyCode/getLoginVerifyCode`,
+    url,
+    {
+      params,
+      method: 'POST',
+      options: {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'X-Access-Token': token ?? '',
+        },
+      },
+    },
+    host,
+  )
+}
+
+const acbsGet = (url: string, params: any, token: string | null = null): Promise<any> => {
+  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
+  let host = directHost
+  if (apiMethod === 'proxy') {
+    host = defaultProxyHost !== '' ? defaultProxyHost : localStorage.getItem('proxyHost')
+  }
+  return request<any>(
+    url,
     {
       params,
       method: 'GET',
+      options: {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'X-Access-Token': token ?? '',
+        },
+      },
     },
-    apiMethod === 'proxy' ? proxyHost : directHost,
+    host,
   )
+}
+
+export function getVerifyCode(params: any): Promise<any> {
+  return acbsGet(`before/sys/verifyCode/getLoginVerifyCode`, params)
 }
 
 export function getLogin(params: any): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
-  return request<any>(
-    `before/login`,
-    {
-      params,
-      method: 'POST',
-      options: {
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      },
-    },
-    apiMethod === 'proxy' ? proxyHost : directHost,
-  )
+  return acbsPost(`before/login`, params)
 }
 
-export function getAppointmentDate(params: any, token: string): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
-  return request<any>(
-    `before/sys/appointment/getAppointmentDate`,
-    {
-      params,
-      method: 'POST',
-      options: {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          'X-Access-Token': token,
-        },
-      },
-    },
-    apiMethod === 'proxy' ? proxyHost : directHost,
-  )
+export function getAppointmentDate(params: any): Promise<any> {
+  const token = localStorage.getItem('token') ?? null
+  return acbsPost(`before/sys/appointment/getAppointmentDate`, params, token)
 }
 
-export function getVehicleInfo(params: any, token: string): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
-  return request<any>(
-    `before/sys/appointment/getPassQualification`,
-    {
-      params,
-      method: 'POST',
-      options: {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          'X-Access-Token': token,
-        },
-      },
-    },
-    apiMethod === 'proxy' ? proxyHost : directHost,
-  )
+export function getVehicleInfo(params: any): Promise<any> {
+  const token = localStorage.getItem('token') ?? null
+  return acbsPost(`before/sys/appointment/getPassQualification`, params, token)
 }
 
-export function getVerifySlider(params: any, token: string): Promise<any> {
-  let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
-  return request<any>(
-    `before/sys/captcha/getPassBookingVerifyComplexImage`,
-    {
-      params,
-      method: 'GET',
-      options: {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          'X-Access-Token': token,
-        },
-      },
-    },
-    apiMethod === 'proxy' ? proxyHost : directHost,
-  )
+export async function getVerifySlider(params: any): Promise<any> {
+  const token = localStorage.getItem('token') ?? null
+  return acbsGet(`before/sys/captcha/getPassBookingVerifyComplexImage`, params, token)
+}
+
+export function checkPassBookingVerify(params: any): Promise<any> {
+  const token = localStorage.getItem('token') ?? null
+  return acbsPost(`before/sys/captcha/checkPassBookingComplexImage`, params, token)
+}
+
+export function validationPassBooking(params: any): Promise<any> {
+  const token = localStorage.getItem('token') ?? null
+  return acbsPost(`before/sys/appointment/validationPassBooking`, params, token)
+}
+
+export function createPassAppointment(params: any): Promise<any> {
+  const token = localStorage.getItem('token') ?? null
+  return acbsPost(`before/sys/appointment/createPassAppointment`, params, token)
 }

@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Apply: (typeof import('./components/Apply.vue'))['default']
-    copy: (typeof import('./components/Enquiry copy.vue'))['default']
     Description: (typeof import('./components/Description.vue'))['default']
     Enquiry: (typeof import('./components/Enquiry.vue'))['default']
     Footer: (typeof import('./components/Footer.vue'))['default']
@@ -16,7 +15,6 @@ declare module 'vue' {
     RouterLink: (typeof import('vue-router'))['RouterLink']
     RouterView: (typeof import('vue-router'))['RouterView']
     Settings: (typeof import('./components/Settings.vue'))['default']
-    VanBadge: (typeof import('vant/es'))['Badge']
     VanButton: (typeof import('vant/es'))['Button']
     VanCalendar: (typeof import('vant/es'))['Calendar']
     VanCell: (typeof import('vant/es'))['Cell']
@@ -28,6 +26,7 @@ declare module 'vue' {
     VanImage: (typeof import('vant/es'))['Image']
     VanLoading: (typeof import('vant/es'))['Loading']
     VanNavBar: (typeof import('vant/es'))['NavBar']
+    VanPicker: (typeof import('vant/es'))['Picker']
     VanPopup: (typeof import('vant/es'))['Popup']
     VanRadio: (typeof import('vant/es'))['Radio']
     VanRadioGroup: (typeof import('vant/es'))['RadioGroup']

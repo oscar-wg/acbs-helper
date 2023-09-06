@@ -20,7 +20,7 @@ instance.interceptors.response.use(
   },
   err => {
     if (err.code === 'ERR_NETWORK') {
-      showNotify({ type: 'danger', message: `[Chrome] ${err.message}` })
+      showNotify({ type: 'danger', message: `[Chrome] ${err.message}, 請查看"說明"` })
       console.log(err)
     }
     return Promise.reject(err)
