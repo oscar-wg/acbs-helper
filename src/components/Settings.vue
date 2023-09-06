@@ -64,6 +64,8 @@ onMounted(() => {
   temp = localStorage.getItem('proxyHost')
   if (temp !== undefined && temp !== null && temp !== '') {
     proxyHost.value = temp
+  } else {
+    localStorage.setItem('apiMethod', apiMethod.value)
   }
 })
 
