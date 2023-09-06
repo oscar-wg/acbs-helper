@@ -182,6 +182,15 @@ onMounted(async () => {
   }
   account.uuid = temp
 
+  temp = localStorage.getItem('apiMethod')
+  if (temp === undefined || temp === null || temp === '') {
+    localStorage.setItem('apiMethod', 'proxy')
+  }
+  temp = localStorage.getItem('proxyHost')
+  if (temp === undefined || temp === null || temp === '') {
+    localStorage.setItem('proxyHost', 'https://acbs-proxy.vercel.app')
+  }
+
   temp = localStorage.getItem('saveLogin')
   if (temp !== undefined && temp !== null && temp !== '') {
     saveLogin.value = JSON.parse(temp)

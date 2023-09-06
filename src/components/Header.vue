@@ -4,6 +4,14 @@ defineOptions({
 })
 
 const showSetting = ref(false)
+const setting = ref<any>(null)
+
+onMounted(() => {
+  console.log('onMounted Header')
+  if (setting.value) {
+    setting.value.init()
+  }
+})
 </script>
 
 <template>
@@ -25,7 +33,10 @@ const showSetting = ref(false)
     position="bottom"
     style="background-color: #f7f8fa"
   >
-    <Settings style="margin-top: 30px" />
+    <Settings
+      ref="setting"
+      style="margin-top: 30px"
+    />
   </VanPopup>
 </template>
 

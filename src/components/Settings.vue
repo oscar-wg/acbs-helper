@@ -12,11 +12,6 @@ const tgChatId = ref('')
 const proxyHost = ref('https://acbs-proxy.vercel.app')
 const directHost = 'https://macaoapply.singlewindow.gd.cn'
 
-const init = () => {
-  tgNotify.value = false
-  tgChatId.value = ''
-}
-
 const onChangeTgNotify = (val: any) => {
   localStorage.setItem('tgNotify', val)
   if (val === true) {
@@ -46,7 +41,9 @@ const onChangeProxyHost = (event: any) => {
 }
 
 onMounted(() => {
-  init()
+  tgNotify.value = false
+  tgChatId.value = ''
+
   let temp = localStorage.getItem('tgChatId')
   if (temp !== undefined && temp !== null && temp !== '') {
     tgChatId.value = temp
@@ -65,13 +62,11 @@ onMounted(() => {
   if (temp !== undefined && temp !== null && temp !== '') {
     proxyHost.value = temp
   } else {
-    localStorage.setItem('proxyHost', apiMethod.value)
+    localStorage.setItem('proxyHost', proxyHost.value)
   }
 })
 
-defineExpose({
-  init,
-})
+defineExpose({})
 </script>
 
 <template>
