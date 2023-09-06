@@ -32,6 +32,10 @@ const isLoading = ref(false)
 const updateSeconds = ref<[number, number]>([2, 5])
 
 const onClickSearch = async (callback: Function | null = null) => {
+  if (isLoading.value === true) {
+    if (callback !== null) callback()
+    return
+  }
   isLoading.value = true
   const today = new Date()
   const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`

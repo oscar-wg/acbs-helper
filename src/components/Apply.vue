@@ -1,14 +1,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { showNotify } from 'vant'
-import {
-  getVehicleInfo,
-  getVerifySlider,
-  checkPassBookingVerify,
-  validationPassBooking,
-  createPassAppointment,
-} from '@/services/api'
+import { getVehicleInfo, getVerifySlider, checkPassBookingVerify } from '@/services/api'
 import { getAcbsJwt } from '@/utils/acbs'
+import { NullableTypeAnnotation } from '@babel/types'
 
 defineOptions({
   name: 'Enquiry',
@@ -47,6 +42,7 @@ const applyForm = reactive({
 })
 const isLoading = reactive({
   vehicle: false,
+  appointment: false,
   slider: false,
   sliderCheck: false,
   apply: false,
@@ -169,6 +165,16 @@ const checkVerifySlider = () => {
 const onClickPickerConfirm = ({ selectedIndexes }: any) => {
   applyForm.appointmentDateIndex = selectedIndexes[0]
   props.appointmentPickerToggle(false)
+}
+
+const onClickAppointmentUpdate = () => {
+  isLoading.appointment = true
+  applyForm.appointmentDateIndex = null
+  props.updateAppointment(() => {
+    isLoading.appointment = false
+    let temp: any = 0
+    applyForm.appointmentDateIndex = temp
+  })
 }
 
 const onClickApply = () => {
@@ -296,16 +302,8 @@ defineExpose({
       </VanCol>
       <VanCol span="12">
         <VanButton
-          @click="
-            () => {
-              applyForm.appointmentDateIndex = null
-              props.updateAppointment(() => {
-                let temp: any = 0
-                applyForm.appointmentDateIndex = temp
-              })
-            }
-          "
-          :loading="account.appointmentDates.length === 0"
+          @click="onClickAppointmentUpdate"
+          :loading="account.appointmentDates.length === 0 || isLoading.appointment"
           type="default"
           round
           block
