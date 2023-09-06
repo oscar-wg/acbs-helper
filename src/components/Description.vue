@@ -70,7 +70,7 @@ defineOptions({
             >
           </p>
           <p>
-            由於「"澳車北上"信息管理服务系统」API有CORS（跨域源資源共用）限制，此演示有直連或Proxy的設定，假如您的瀏覧器有安裝"Allow
+            由於「"澳車北上"信息管理服务系统」API有CORS（跨域源資源共用）限制，此網頁有直連或Proxy的設定，假如您的瀏覧器有安裝"Allow
             CORS"之類的插件，可以使用直連。Proxy版由作者托管的Proxy或自建Proxy，只作為API請求轉發，如不信任請不要使用Proxy。
           </p>
         </div>
