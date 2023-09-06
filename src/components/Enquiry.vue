@@ -33,7 +33,6 @@ const updateSeconds = ref<[number, number]>([2, 5])
 
 const onClickSearch = async (callback: Function | null = null) => {
   isLoading.value = true
-  account.value.appointmentDates = []
   const today = new Date()
   const todayStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
   const currentTimeStr = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`
