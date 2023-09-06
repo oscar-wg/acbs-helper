@@ -10,7 +10,7 @@ export function sendApplyNotify(params: any): Promise<any> {
   })
 }
 
-const acbsPost = (url: string, params: any, token: string | null = null): Promise<any> => {
+const acbsPost = (url: string, params: any): Promise<any> => {
   let apiMethod = localStorage.getItem('apiMethod') ?? 'direct'
   let host = directHost
   if (apiMethod === 'proxy') {
@@ -24,7 +24,6 @@ const acbsPost = (url: string, params: any, token: string | null = null): Promis
       options: {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
-          'X-Access-Token': token ?? '',
         },
       },
     },
@@ -32,7 +31,7 @@ const acbsPost = (url: string, params: any, token: string | null = null): Promis
   )
 }
 
-const acbsGet = (url: string, params: any, token: string | null = null): Promise<any> => {
+const acbsGet = (url: string, params: any): Promise<any> => {
   let apiMethod = localStorage.getItem('apiMethod') ?? 'proxy'
   let host = directHost
   if (apiMethod === 'proxy') {
@@ -46,7 +45,6 @@ const acbsGet = (url: string, params: any, token: string | null = null): Promise
       options: {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
-          'X-Access-Token': token ?? '',
         },
       },
     },
@@ -63,31 +61,25 @@ export function getLogin(params: any): Promise<any> {
 }
 
 export function getAppointmentDate(params: any): Promise<any> {
-  const token = localStorage.getItem('token') ?? null
-  return acbsPost(`before/sys/appointment/getAppointmentDate`, params, token)
+  return acbsPost(`before/sys/appointment/getAppointmentDate`, params)
 }
 
 export function getVehicleInfo(params: any): Promise<any> {
-  const token = localStorage.getItem('token') ?? null
-  return acbsPost(`before/sys/appointment/getPassQualification`, params, token)
+  return acbsPost(`before/sys/appointment/getPassQualification`, params)
 }
 
 export async function getVerifySlider(params: any): Promise<any> {
-  const token = localStorage.getItem('token') ?? null
-  return acbsGet(`before/sys/captcha/getPassBookingVerifyComplexImage`, params, token)
+  return acbsGet(`before/sys/captcha/getPassBookingVerifyComplexImage`, params)
 }
 
 export function checkPassBookingVerify(params: any): Promise<any> {
-  const token = localStorage.getItem('token') ?? null
-  return acbsPost(`before/sys/captcha/checkPassBookingComplexImage`, params, token)
+  return acbsPost(`before/sys/captcha/checkPassBookingComplexImage`, params)
 }
 
 export function validationPassBooking(params: any): Promise<any> {
-  const token = localStorage.getItem('token') ?? null
-  return acbsPost(`before/sys/appointment/validationPassBooking`, params, token)
+  return acbsPost(`before/sys/appointment/validationPassBooking`, params)
 }
 
 export function createPassAppointment(params: any): Promise<any> {
-  const token = localStorage.getItem('token') ?? null
-  return acbsPost(`before/sys/appointment/createPassAppointment`, params, token)
+  return acbsPost(`before/sys/appointment/createPassAppointment`, params)
 }

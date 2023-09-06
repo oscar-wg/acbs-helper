@@ -1,12 +1,16 @@
 import axios from 'axios'
 import { showNotify } from 'vant'
 
-const instance = axios.create({
-  timeout: 60_000,
-})
+axios.defaults.timeout = 5 * 60 * 1000
+
+const instance = axios.create()
 
 instance.interceptors.request.use(
   config => {
+    const token = localStorage.getItem('token') ?? null
+    if (token !== null) {
+      config.headers['X-Access-Token'] = token
+    }
     return config
   },
   err => {
