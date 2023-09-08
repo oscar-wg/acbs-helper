@@ -82,7 +82,7 @@ defineExpose({})
             @change="onChangeApiMethod"
             style="width: 100%"
           >
-            <VanRadio name="direct">直連</VanRadio>
+            <VanRadio name="direct">直連(推薦)</VanRadio>
             <VanRadio
               name="proxy"
               style="margin-top: 5px"

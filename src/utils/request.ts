@@ -5,7 +5,7 @@ axios.defaults.timeout = 5 * 60 * 1000
 
 const directHost = 'https://macaoapply.singlewindow.gd.cn'
 const defaultProxyHost = import.meta.env.VITE_APP_PROXY_HOST ?? ''
-const notifyApiHost = import.meta.env.VITE_APP_NOTIFY_API_HOST ?? ''
+const helperApiHost = import.meta.env.VITE_APP_API_HOST ?? ''
 
 const instance = axios.create()
 
@@ -19,7 +19,7 @@ instance.interceptors.request.use(
       }
       config.baseURL = host
     } else {
-      config.baseURL = notifyApiHost
+      config.baseURL = helperApiHost
     }
     const token = localStorage.getItem('token') ?? null
     if (token !== null) {
@@ -39,8 +39,13 @@ instance.interceptors.response.use(
   err => {
     if (err.code === 'ERR_NETWORK') {
       showNotify({ type: 'danger', message: `[Chrome] ${err.message}, 請查看"說明"` })
-      console.log(err)
+    } else if (err.code === 'ERR_BAD_RESPONSE') {
+      showNotify({
+        type: 'danger',
+        message: `[${err.response.status}] ${err.response.statusText}"`,
+      })
     }
+    console.log(err)
     return Promise.reject(err)
   },
 )

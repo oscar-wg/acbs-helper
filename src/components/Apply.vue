@@ -1,9 +1,12 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { showNotify } from 'vant'
-import { getVehicleInfo, getVerifySlider, checkPassBookingVerify } from '@/services/api'
+import {
+  getVehicleInfo,
+  getVerifySlider,
+  checkPassBookingVerify,
+  solveSliderCaptcha,
+} from '@/services/api'
 import { getAcbsJwt } from '@/utils/acbs'
-import { NullableTypeAnnotation } from '@babel/types'
 
 defineOptions({
   name: 'Enquiry',
@@ -29,6 +32,7 @@ const props = defineProps({
 })
 
 const { account } = toRefs(props)
+const autoVerify = ref(false)
 const applyForm = reactive({
   plateNumber: '',
   formInstanceId: '',
@@ -73,10 +77,6 @@ const loadVehicle = async () => {
     })
     .finally(async () => {
       isLoading.vehicle = false
-      props.updateAppointment(() => {
-        let temp: any = 0
-        applyForm.appointmentDateIndex = temp
-      })
     })
 }
 
@@ -101,6 +101,9 @@ const loadVerifySlider = async () => {
       }
       applyForm.captcha = resp['responseResult']['responseList']['captcha']
       applyForm.captchaId = resp['responseResult']['responseList']['id']
+      if (autoVerify.value === true) {
+        getSliderCaptchaResult()
+      }
     })
     .finally(() => {
       isLoading.slider = false
@@ -162,9 +165,27 @@ const checkVerifySlider = () => {
     })
 }
 
+const getSliderCaptchaResult = () => {
+  const req = {
+    captcha: applyForm.captcha,
+    widthScale: applyForm.verifyCodeWidth,
+  }
+  solveSliderCaptcha(req).then(resp => {
+    applyForm.verifyCodeValue = resp.result
+    checkVerifySlider()
+  })
+}
+
 const onClickPickerConfirm = ({ selectedIndexes }: any) => {
   applyForm.appointmentDateIndex = selectedIndexes[0]
   props.appointmentPickerToggle(false)
+}
+
+const onChangeAutoVerify = (val: boolean) => {
+  localStorage.setItem('autoVerify', val.toString())
+  if (val === true && applyForm.captchaPass === false && applyForm.captcha !== null) {
+    getSliderCaptchaResult()
+  }
 }
 
 const onClickAppointmentUpdate = () => {
@@ -186,8 +207,13 @@ const onClickApply = () => {
 }
 
 onMounted(async () => {
-  await loadVerifySlider()
+  let temp = localStorage.getItem('autoVerify')
+  if (temp !== undefined && temp !== null && temp !== '') {
+    autoVerify.value = JSON.parse(temp)
+  }
+  loadVerifySlider()
   loadVehicle()
+  onClickAppointmentUpdate()
 })
 
 const appointmentDateValue = computed(() => {
@@ -229,6 +255,19 @@ defineExpose({
         "
       >
       </VanField>
+      <VanCell
+        title="自動驗證"
+        center
+      >
+        <template #value>
+          <div style="text-align: left; line-height: 10px">
+            <VanSwitch
+              v-model="autoVerify"
+              @change="onChangeAutoVerify"
+            />
+          </div>
+        </template>
+      </VanCell>
       <VanCell
         v-if="applyForm.captchaPass"
         title="驗證碼"

@@ -10,6 +10,13 @@ export function sendApplyNotify(params: any): Promise<any> {
   })
 }
 
+export function solveSliderCaptcha(params: any): Promise<any> {
+  return request<any>('/tool/solve-slider-captcha', {
+    params,
+    method: 'POST',
+  })
+}
+
 const acbsPost = (url: string, params: any): Promise<any> => {
   return request<any>(url, {
     params,

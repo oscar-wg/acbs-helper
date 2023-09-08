@@ -61,9 +61,6 @@ const onClickSearch = async (callback: Function | null = null) => {
       }
       const temp: any[] = []
       resp.responseResult.appointmentDateList.map((r: any) => temp.push(r))
-      console.log(
-        temp.sort((a: any, b: any) => parseInt(b.appointmentDate) - parseInt(a.appointmentDate))[0],
-      )
       account.value.appointmentDates = temp
       appointment.lastUpdate = `${todayStr} ${currentTimeStr}`
       if (callback !== null) callback()
@@ -159,10 +156,12 @@ defineExpose({
         center
       >
         <template #value>
-          <VanSwitch
-            @change="onChangeAutoSearch"
-            v-model="autoSearch"
-          />
+          <div style="line-height: 10px">
+            <VanSwitch
+              @change="onChangeAutoSearch"
+              v-model="autoSearch"
+            />
+          </div>
         </template>
       </VanCell>
       <VanCell
