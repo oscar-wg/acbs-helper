@@ -9,7 +9,7 @@ defineOptions({
 const apiMethod = ref('proxy')
 const tgNotify = ref(false)
 const tgChatId = ref('')
-const proxyHost = ref('https://acbs-proxy.vercel.app')
+const proxyHost = ref(import.meta.env.VITE_APP_PROXY_HOST ?? '')
 let directHost = 'https://macaoapply.singlewindow.gd.cn'
 
 const onChangeTgNotify = (val: any) => {
