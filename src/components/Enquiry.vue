@@ -31,7 +31,7 @@ const appointment = reactive({
 const isLoading = ref(false)
 const updateSeconds = ref<[number, number]>([2, 5])
 
-const onClickSearch = async (callback: Function | null = null) => {
+const onClickSearch = async (callback: Function | null = null, notify: boolean = true) => {
   if (isLoading.value === true) {
     if (callback !== null) callback()
     return
@@ -61,6 +61,7 @@ const onClickSearch = async (callback: Function | null = null) => {
       }
       const temp: any[] = []
       resp.responseResult.appointmentDateList.map((r: any) => temp.push(r))
+      temp.sort((a: any, b: any) => b.appointmentDate - a.appointmentDate)
       account.value.appointmentDates = temp
       appointment.lastUpdate = `${todayStr} ${currentTimeStr}`
       if (callback !== null) callback()
@@ -83,6 +84,7 @@ const onClickSearch = async (callback: Function | null = null) => {
   }
 
   if (
+    notify &&
     account.value.appointmentDates.filter((r: any) => parseInt(r.applyNum) !== parseInt(r.quota))
       .length > 0
   ) {

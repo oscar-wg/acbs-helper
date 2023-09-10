@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { showNotify } from 'vant'
 import {
-  getVehicleInfo,
   getVerifySlider,
   checkPassBookingVerify,
   solveSliderCaptcha,
+  createPassAppointment,
+  validationPassBooking,
 } from '@/services/api'
 import { getAcbsJwt } from '@/utils/acbs'
 
@@ -34,55 +35,25 @@ const props = defineProps({
 const { account } = toRefs(props)
 const autoVerify = ref(false)
 const applyForm = reactive({
-  plateNumber: '',
-  formInstanceId: '',
-  appointmentDateIndex: null,
-  captcha: null,
+  appointmentDateIndex: 0,
   captchaId: '',
   captchaPass: false,
   validationPass: false,
   verifyCodeValue: 0,
   verifyCodeWidth: 260,
 })
+const captcha = ref<any>(null)
+
 const isLoading = reactive({
-  vehicle: false,
   appointment: false,
   slider: false,
   sliderCheck: false,
   apply: false,
 })
 
-const loadVehicle = async () => {
-  isLoading.vehicle = true
-  getVehicleInfo({
-    jwt: getAcbsJwt({
-      iss: account.value.uuid,
-    }),
-    _method: '_POST',
-  })
-    .then(resp => {
-      if (resp.responseCode !== 200) {
-        showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
-        if (resp.responseCode === 802) {
-          if (props.logout) {
-            props.logout()
-          }
-        }
-        return
-      }
-      applyForm.plateNumber =
-        resp['responseResult']['formInstanceList'][0]['formInstance']['plateNumber']
-      applyForm.formInstanceId =
-        resp['responseResult']['formInstanceList'][0]['formInstance']['formInstanceId']
-    })
-    .finally(async () => {
-      isLoading.vehicle = false
-    })
-}
-
 const loadVerifySlider = async () => {
   isLoading.slider = true
-  applyForm.captcha = null
+  captcha.value = null
   applyForm.captchaPass = false
   applyForm.validationPass = false
   applyForm.verifyCodeValue = 0
@@ -99,7 +70,7 @@ const loadVerifySlider = async () => {
         }
         return
       }
-      applyForm.captcha = resp['responseResult']['responseList']['captcha']
+      captcha.value = resp['responseResult']['responseList']['captcha']
       applyForm.captchaId = resp['responseResult']['responseList']['id']
       if (autoVerify.value === true) {
         getSliderCaptchaResult()
@@ -126,14 +97,14 @@ const checkVerifySlider = () => {
   }
   const payload = {
     appointmentType: 'passBooking',
-    formInstanceId: applyForm.formInstanceId,
+    formInstanceId: account.value.formInstanceId,
     direction: 'S',
-    plateNumber: applyForm.plateNumber,
+    plateNumber: account.value.plateNumber,
     verifyUploadData: {
       bgImageWidth: applyForm.verifyCodeWidth,
       bgImageHeight: Math.round(
-        (applyForm.verifyCodeWidth / applyForm.captcha.backgroundImageWidth) *
-          applyForm.captcha.backgroundImageHeight,
+        (applyForm.verifyCodeWidth / captcha.value.backgroundImageWidth) *
+          captcha.value.backgroundImageHeight,
       ),
       startSlidingTime: startTime,
       entSlidingTime: endTime,
@@ -167,13 +138,29 @@ const checkVerifySlider = () => {
 
 const getSliderCaptchaResult = () => {
   const req = {
-    captcha: applyForm.captcha,
+    captcha: captcha.value,
     widthScale: applyForm.verifyCodeWidth,
   }
   solveSliderCaptcha(req).then(resp => {
     applyForm.verifyCodeValue = resp.result
     checkVerifySlider()
   })
+}
+
+const goValidationPassBooking = () => {
+  showNotify({
+    type: 'primary',
+    message: '暫不開放此功能',
+  })
+  // TODO
+}
+
+const goCreatePassAppointment = () => {
+  showNotify({
+    type: 'primary',
+    message: '暫不開放此功能',
+  })
+  // TODO
 }
 
 const onClickPickerConfirm = ({ selectedIndexes }: any) => {
@@ -183,27 +170,26 @@ const onClickPickerConfirm = ({ selectedIndexes }: any) => {
 
 const onChangeAutoVerify = (val: boolean) => {
   localStorage.setItem('autoVerify', val.toString())
-  if (val === true && applyForm.captchaPass === false && applyForm.captcha !== null) {
+  if (val === true && applyForm.captchaPass === false && captcha !== null) {
     getSliderCaptchaResult()
   }
 }
 
 const onClickAppointmentUpdate = () => {
   isLoading.appointment = true
-  applyForm.appointmentDateIndex = null
   props.updateAppointment(() => {
     isLoading.appointment = false
-    let temp: any = 0
-    applyForm.appointmentDateIndex = temp
-  })
+  }, false)
 }
 
 const onClickApply = () => {
-  showNotify({
-    type: 'primary',
-    message: '暫不開放此功能',
-  })
-  // goValidationPassBooking()
+  if (applyForm.captchaPass === false) {
+    checkVerifySlider()
+  } else if (applyForm.validationPass === false) {
+    goValidationPassBooking()
+  } else {
+    goCreatePassAppointment()
+  }
 }
 
 onMounted(async () => {
@@ -212,12 +198,13 @@ onMounted(async () => {
     autoVerify.value = JSON.parse(temp)
   }
   loadVerifySlider()
-  loadVehicle()
-  onClickAppointmentUpdate()
+  if (account.value.appointmentDates.length === 0) {
+    onClickAppointmentUpdate()
+  }
 })
 
 const appointmentDateValue = computed(() => {
-  return applyForm.appointmentDateIndex !== null
+  return applyForm.appointmentDateIndex !== null && account.value.appointmentDates.length > 0
     ? `${
         account.value.appointmentDates[applyForm.appointmentDateIndex].appointmentDateRef
       } / 剩餘位置: ${
@@ -236,14 +223,14 @@ defineExpose({
   <div class="apply">
     <VanCellGroup title="填寫資料">
       <VanField
-        v-model="applyForm.plateNumber"
+        v-model="account.plateNumber"
         name="plateNumber"
         label="車牌號碼"
         readonly
       />
       <VanField
         v-model="appointmentDateValue"
-        :disabled="account.appointmentDates.length === 0"
+        :disabled="account.appointmentDates.length === 0 || isLoading.appointment"
         is-link
         readonly
         label="預約日期"
@@ -283,7 +270,7 @@ defineExpose({
         <VanImage
           show-loading
           :width="`${applyForm.verifyCodeWidth}px`"
-          :src="applyForm.captcha !== null ? applyForm.captcha.backgroundImage : ''"
+          :src="captcha !== null ? captcha.backgroundImage : ''"
         >
           <template v-slot:loading>
             <div style="width: 100%">
@@ -295,12 +282,11 @@ defineExpose({
           </template>
         </VanImage>
         <VanImage
-          v-if="applyForm.captcha !== null"
+          v-if="captcha !== null"
           :width="`${
-            (applyForm.verifyCodeWidth / applyForm.captcha.backgroundImageWidth) *
-            applyForm.captcha.templateImageWidth
+            (applyForm.verifyCodeWidth / captcha.backgroundImageWidth) * captcha.templateImageWidth
           }px`"
-          :src="applyForm.captcha !== null ? applyForm.captcha.templateImage : ''"
+          :src="captcha !== null ? captcha.templateImage : ''"
           :style="{
             position: 'absolute',
             top: 0,
@@ -309,7 +295,7 @@ defineExpose({
         />
       </div>
       <div
-        v-if="applyForm.captcha !== null"
+        v-if="captcha !== null"
         style="padding: 20px 0; margin: 0 auto"
         :style="{
           width: `${applyForm.verifyCodeWidth}px`,

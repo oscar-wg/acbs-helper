@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { showNotify } from 'vant'
-import { getLogin, getVerifyCode } from '@/services/api'
+import { getLogin, getVehicleInfo, getVerifyCode } from '@/services/api'
 import { $utils } from '@/utils/index'
 import { getAcbsJwt, getAcbsPwHash } from '@/utils/acbs'
 // import { parseVerifyCode } from '@/utils/tesseract'
@@ -26,6 +26,8 @@ const account = reactive({
   token: '',
   userId: '',
   name: '',
+  plateNumber: '',
+  formInstanceId: '',
   appointmentDates: [],
 })
 const appointmentDatePicker = reactive({
@@ -40,6 +42,7 @@ const loadVerifyCode = async () => {
   const jwtEncode = getAcbsJwt({
     iss: account.uuid,
   })
+
   await getVerifyCode({ jwt: jwtEncode }).then(async resp => {
     if (resp.responseCode !== 200) {
       showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
@@ -54,6 +57,27 @@ const loadVerifyCode = async () => {
       account.verifyCode = result
     })
     */
+  })
+}
+
+const loadVehicle = async () => {
+  getVehicleInfo({
+    jwt: getAcbsJwt({
+      iss: account.uuid,
+    }),
+    _method: '_POST',
+  }).then(resp => {
+    if (resp.responseCode !== 200) {
+      showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
+      if (resp.responseCode === 802) {
+        onClickLogout()
+      }
+      return
+    }
+    account.plateNumber =
+      resp['responseResult']['formInstanceList'][0]['formInstance']['plateNumber']
+    account.formInstanceId =
+      resp['responseResult']['formInstanceList'][0]['formInstance']['formInstanceId']
   })
 }
 
@@ -133,7 +157,7 @@ const onClickLogin = async () => {
         localStorage.setItem('useLastLogin', useLastLogin.value.toString())
       }
       localStorage.setItem('token', account.token)
-
+      loadVehicle()
       setTimeout(() => {
         activeTab.value = 1
       }, 100)
@@ -227,9 +251,11 @@ onMounted(async () => {
     if (temp !== undefined && temp !== null && temp !== '') {
       account.userId = temp
     }
+
+    loadVehicle()
     setTimeout(() => {
       activeTab.value = 1
-    }, 100)
+    }, 300)
   }
 
   if (account.token === '') {
@@ -378,7 +404,7 @@ onMounted(async () => {
           badge="PRO"
         >
           <Apply
-            v-if="account.token !== ''"
+            v-if="activeTab === 2"
             ref="applyTab"
             :account="account"
             :logout="onClickLogout"
@@ -405,8 +431,9 @@ onMounted(async () => {
         :columns="
           account.appointmentDates.map((r: any) => {
             return {
-              text:
-                r.appointmentDateRef + ' / 剩餘位置: ' + (parseInt(r.applyNum) - parseInt(r.quota)),
+              text: `${r.appointmentDateRef} / 剩餘位置: ${
+                parseInt(r.quota) - parseInt(r.applyNum)
+              }`,
               value: r.appointmentDateRef,
               // disabled: (parseInt(r.applyNum) - parseInt(r.quota)) <= 0
             }

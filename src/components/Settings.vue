@@ -10,7 +10,7 @@ const apiMethod = ref('proxy')
 const tgNotify = ref(false)
 const tgChatId = ref('')
 const proxyHost = ref('https://acbs-proxy.vercel.app')
-const directHost = 'https://macaoapply.singlewindow.gd.cn'
+let directHost = 'https://macaoapply.singlewindow.gd.cn'
 
 const onChangeTgNotify = (val: any) => {
   localStorage.setItem('tgNotify', val)
@@ -106,6 +106,7 @@ defineExpose({})
         type="text"
         value="abc"
         disabled
+        readonly
       />
     </VanCellGroup>
     <VanCellGroup title="Telegarm">
