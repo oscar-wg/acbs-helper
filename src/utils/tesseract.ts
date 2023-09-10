@@ -20,18 +20,66 @@ async function getBufferFromDataURL(dataUrl: string) {
   return Buffer.from(response)
 }
 
-function pngVerifyCodeImgFilter(imageBuffer: any) {
+const colorInRange = (rgb: number[], start: number[], end: number[] = []) => {
+  if (end.length === 0) {
+    end = start
+  }
+  for (let r = start[0]; r <= end[0]; r++) {
+    for (let g = start[1]; g <= end[1]; g++) {
+      for (let b = start[2]; b <= end[2]; b++) {
+        if (rgb[0] === r && rgb[1] === g && rgb[2] === b) {
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+export const pngVerifyCodeImgFilter = async (imgSrc: string) => {
+  const imageBuffer = await getBufferFromDataURL(imgSrc)
   const pngImage = PNG.sync.read(imageBuffer)
   let { height, width } = pngImage
   let imgData = pngImage.data
-
   for (let y = 0; y < height; y++) {
     // rows
     for (let x = 0; x < width; x++) {
       // columns
       let index = (width * y + x) * 4
-      let RGB = [imgData[index], imgData[index + 1], imgData[index + 2]]
-      if (RGB[0] === 255 && RGB[1] === 255 && RGB[2] === 255) continue
+      let rgb = [imgData[index], imgData[index + 1], imgData[index + 2]]
+      if (rgb[0] === 255 && rgb[1] === 255 && rgb[2] === 255) continue
+      if (colorInRange(rgb, [0, 0, 0], [15, 15, 15])) {
+        imgData[index] = 255
+        imgData[index + 1] = 255
+        imgData[index + 2] = 255
+      }
+      for (let temp = 15; temp <= 35; temp++) {
+        if (colorInRange(rgb, [temp, temp, temp], [temp + 3, temp + 3, temp + 3])) {
+          imgData[index] = 255
+          imgData[index + 1] = 255
+          imgData[index + 2] = 255
+        }
+      }
+      if (colorInRange(rgb, [170, 170, 170], [205, 205, 205])) {
+        imgData[index] = 255
+        imgData[index + 1] = 255
+        imgData[index + 2] = 255
+      }
+      for (let temp = 140; temp <= 170; temp++) {
+        if (colorInRange(rgb, [temp, temp, temp], [temp + 3, temp + 3, temp + 3])) {
+          imgData[index] = 255
+          imgData[index + 1] = 255
+          imgData[index + 2] = 255
+        }
+      }
+
+      if (colorInRange(rgb, [110, 110, 110], [135, 135, 135])) {
+        imgData[index] = 255
+        imgData[index + 1] = 255
+        imgData[index + 2] = 255
+      }
+
+      /*
       if (
         (Math.abs(RGB[0] - RGB[1]) <= 10 &&
           Math.abs(RGB[1] - RGB[2]) <= 10 &&
@@ -66,6 +114,7 @@ function pngVerifyCodeImgFilter(imageBuffer: any) {
         imgData[index + 1] = 0
         imgData[index + 2] = 0
       }
+      */
     }
   }
 
@@ -78,8 +127,7 @@ export const parseVerifyCode = async (imgSrc: string, callback: Function = () =>
     worker = await initWorker()
   }
   if (imgSrc.includes('image/png')) {
-    const imgBuffer = getBufferFromDataURL(imgSrc)
-    const newImageSrc = pngVerifyCodeImgFilter(imgBuffer)
+    const newImageSrc = pngVerifyCodeImgFilter(imgSrc)
     const answer = await worker
       .recognize(newImageSrc)
       .then((data: any) => {
@@ -91,12 +139,12 @@ export const parseVerifyCode = async (imgSrc: string, callback: Function = () =>
       })
     callback(answer)
   } else if (imgSrc.includes('image/gif')) {
+    // old method to GIF image
     const verifyCodeAnswerArray: any[] = []
     gifFrames({ url: imgSrc, frames: 'all', outputType: 'canvas' })
       .then(async (frameData: any) => {
         for (const fd of frameData) {
-          const imgBuffer = getBufferFromDataURL(fd.getImage().toDataURL('image/png'))
-          const newImageSrc = pngVerifyCodeImgFilter(imgBuffer)
+          const newImageSrc = pngVerifyCodeImgFilter(fd.getImage().toDataURL('image/png'))
 
           const answer = await worker
             .recognize(newImageSrc)

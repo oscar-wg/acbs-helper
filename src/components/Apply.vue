@@ -43,7 +43,6 @@ const applyForm = reactive({
   verifyCodeWidth: 260,
 })
 const captcha = ref<any>(null)
-
 const isLoading = reactive({
   appointment: false,
   slider: false,
@@ -313,7 +312,10 @@ defineExpose({
         </VanSlider>
       </div>
     </VanCellGroup>
-    <VanRow style="margin: 16px">
+    <VanRow
+      style="margin: 16px"
+      gutter="16"
+    >
       <VanCol span="12">
         <VanButton
           @click="loadVerifySlider"

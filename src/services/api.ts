@@ -17,6 +17,13 @@ export function solveSliderCaptcha(params: any): Promise<any> {
   })
 }
 
+export function solveImageCaptcha(params: any): Promise<any> {
+  return request<any>('/tool/solve-image-captcha', {
+    params,
+    method: 'POST',
+  })
+}
+
 const acbsPost = (url: string, params: any): Promise<any> => {
   return request<any>(url, {
     params,

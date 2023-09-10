@@ -1,20 +1,28 @@
 <script lang="ts" setup>
 import { showNotify } from 'vant'
-import { getLogin, getVehicleInfo, getVerifyCode } from '@/services/api'
+import { getLogin, getVehicleInfo, getVerifyCode, solveImageCaptcha } from '@/services/api'
 import { $utils } from '@/utils/index'
 import { getAcbsJwt, getAcbsPwHash } from '@/utils/acbs'
+import { pngVerifyCodeImgFilter } from '@/utils/tesseract'
 // import { parseVerifyCode } from '@/utils/tesseract'
 
 defineOptions({
   name: 'Home',
 })
 
+const filterImg = ref('')
+const autoVerify = ref(false)
 const enquiryTab = ref<any>(null)
 const applyTab = ref<any>(null)
-const isLoading = ref(false)
 const activeTab = ref(0)
 const saveLogin = ref(false)
 const useLastLogin = ref(false)
+const isLoading = reactive({
+  verifyCode: false,
+  vehicle: false,
+  login: false,
+  logout: false,
+})
 const account = reactive({
   uuid: '',
   username: '',
@@ -34,7 +42,35 @@ const appointmentDatePicker = reactive({
   show: false,
 })
 
+const getVerifyCodeDecode = async () => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  const image: any = document.querySelector('#captcha img')
+  if (ctx !== null && image !== null) {
+    canvas.width = image.width
+    canvas.height = image.height
+    ctx.drawImage(image, 0, 0)
+    filterImg.value = await pngVerifyCodeImgFilter(canvas.toDataURL())
+  }
+  solveImageCaptcha({
+    captcha: filterImg.value,
+  }).then(resp => {
+    const answer = resp.result
+    if (answer && answer.length === 4) {
+      account.verifyCode = answer
+    } else {
+      showNotify({
+        type: 'warning',
+        message: '無法識別',
+      })
+      loadVerifyCode()
+    }
+  })
+}
+
 const loadVerifyCode = async () => {
+  isLoading.verifyCode = true
+  filterImg.value = ''
   account.verifyCode = ''
   account.verifyCodeId = ''
   account.verifyCodeImg = ''
@@ -51,13 +87,13 @@ const loadVerifyCode = async () => {
     account.verifyCodeImg = resp.responseResult.imageUrl
     account.verifyCodeId = resp.responseResult.verifyCodeId
 
-    /*
-    // disable parse verify code, after 2023/08/31, the verify code image change to PNG and add noise, can not parse by original function
-    parseVerifyCode(account.verifyCodeImg, (result: string) => {
-      account.verifyCode = result
-    })
-    */
+    if (autoVerify.value === true) {
+      setTimeout(async () => {
+        getVerifyCodeDecode()
+      }, 100)
+    }
   })
+  isLoading.verifyCode = false
 }
 
 const loadVehicle = async () => {
@@ -114,7 +150,7 @@ const onClickLogin = async () => {
     account.passwordHash = getAcbsPwHash(account.password)
   }
 
-  isLoading.value = true
+  isLoading.login = true
 
   if (account.verifyCode !== '') {
     const jwtEncode = getAcbsJwt({
@@ -164,10 +200,11 @@ const onClickLogin = async () => {
     })
   }
 
-  isLoading.value = false
+  isLoading.login = false
 }
 
 const onClickLogout = async () => {
+  isLoading.logout = true
   account.token = ''
   account.password = ''
   account.verifyCode = ''
@@ -181,6 +218,7 @@ const onClickLogout = async () => {
   activeTab.value = 0
 
   localStorage.removeItem('token')
+  isLoading.logout = false
   loadVerifyCode()
 }
 
@@ -198,6 +236,15 @@ const onClickClearStorage = async () => {
   window.location.href = '/'
 }
 
+const onChangeAutoVerify = (val: boolean) => {
+  localStorage.setItem('autoImageVerify', val.toString())
+  if (val === true && account.verifyCodeImg !== '') {
+    getVerifyCodeDecode()
+  } else {
+    filterImg.value = ''
+  }
+}
+
 onMounted(async () => {
   let temp = localStorage.getItem('uuid')
   if (temp === undefined || temp === null || temp === '') {
@@ -205,6 +252,11 @@ onMounted(async () => {
     localStorage.setItem('uuid', temp)
   }
   account.uuid = temp
+
+  temp = localStorage.getItem('autoImageVerify')
+  if (temp !== undefined && temp !== null && temp !== '') {
+    autoVerify.value = JSON.parse(temp)
+  }
 
   temp = localStorage.getItem('apiMethod')
   if (temp === undefined || temp === null || temp === '') {
@@ -277,7 +329,7 @@ onMounted(async () => {
             <VanField
               v-model="account.username"
               :rules="[{ required: true, message: '填寫賬戶' }]"
-              :disabled="account.token !== ''"
+              :disabled="account.token !== '' || isLoading.login === true"
               name="username"
               type="email"
               label="賬戶"
@@ -287,6 +339,7 @@ onMounted(async () => {
               <VanField
                 v-model="account.password"
                 v-if="useLastLogin == false"
+                :disabled="isLoading.login === true"
                 :rules="[{ required: true, message: '填寫密碼' }]"
                 type="password"
                 name="current-password"
@@ -295,20 +348,24 @@ onMounted(async () => {
               />
               <VanField
                 v-model="account.verifyCode"
-                :disabled="account.verifyCodeImg === ''"
+                :disabled="
+                  account.verifyCodeImg === '' ||
+                  isLoading.verifyCode === true ||
+                  isLoading.login === true
+                "
                 name="verify-code"
                 label="驗證碼"
                 center
               >
                 <template #right-icon>
                   <VanImage
+                    v-if="filterImg !== ''"
+                    :src="filterImg"
+                  />
+                  <VanImage
                     :src="`${account.verifyCodeImg}`"
+                    :show-loading="isLoading.verifyCode === true"
                     id="captcha"
-                    @click="
-                      () => {
-                        loadVerifyCode()
-                      }
-                    "
                   >
                     <template v-slot:loading>
                       <van-loading
@@ -319,16 +376,38 @@ onMounted(async () => {
                   </VanImage>
                 </template>
               </VanField>
+              <VanCell
+                title="自動填驗證碼"
+                center
+              >
+                <template #value>
+                  <div style="text-align: left; line-height: 10px">
+                    <VanSwitch
+                      v-model="autoVerify"
+                      :disabled="isLoading.login || isLoading.verifyCode"
+                      @change="onChangeAutoVerify"
+                    />
+                  </div>
+                </template>
+              </VanCell>
               <VanCell>
                 <VanCheckbox
                   v-model="saveLogin"
+                  :disabled="isLoading.login"
                   style="margin: 5px 0"
                   >本機儲存登入資訊</VanCheckbox
                 >
               </VanCell>
-              <VanCell v-if="account.passwordHash !== '' && saveLogin === true">
+              <VanCell
+                v-if="
+                  account.passwordHash !== '' &&
+                  saveLogin === true &&
+                  !(isLoading.login === true && useLastLogin === false)
+                "
+              >
                 <VanCheckbox
                   v-model="useLastLogin"
+                  :disabled="isLoading.login"
                   style="margin: 5px 0"
                   >使用上次登入</VanCheckbox
                 >
@@ -339,34 +418,60 @@ onMounted(async () => {
             <VanButton
               @click="onClickLogin"
               v-if="account.token === ''"
-              :loading="isLoading"
-              :disabled="account.verifyCodeImg === ''"
+              :loading="isLoading.login"
+              :disabled="isLoading.verifyCode === true"
               type="primary"
               round
               block
             >
               登入
             </VanButton>
-            <VanButton
-              @click="onClickLogout"
-              v-else
-              type="primary"
-              round
-              block
-            >
-              登出
-            </VanButton>
           </div>
-          <div style="margin: 16px">
-            <VanButton
-              @click="onClickClearStorage"
-              type="default"
-              round
-              block
-            >
-              清除儲存資料
-            </VanButton>
-          </div>
+          <VanRow
+            style="margin: 16px"
+            gutter="16"
+            justify="center"
+          >
+            <VanCol span="12">
+              <VanButton
+                v-if="account.token === ''"
+                @click="loadVerifyCode"
+                :loading="isLoading.verifyCode"
+                :disabled="isLoading.login"
+                type="default"
+                round
+                block
+              >
+                更換驗證碼
+              </VanButton>
+
+              <VanButton
+                @click="onClickLogout"
+                v-else
+                :loading="isLoading.logout"
+                type="primary"
+                round
+                block
+              >
+                登出
+              </VanButton>
+            </VanCol>
+            <VanCol span="12">
+              <VanButton
+                @click="onClickClearStorage"
+                :disabled="
+                  isLoading.login === true ||
+                  isLoading.verifyCode === true ||
+                  isLoading.logout === true
+                "
+                type="default"
+                round
+                block
+              >
+                清除儲存資料
+              </VanButton>
+            </VanCol>
+          </VanRow>
           <VanCellGroup
             v-if="account.token !== ''"
             title="登入訊息"
@@ -385,7 +490,6 @@ onMounted(async () => {
             />
           </VanCellGroup>
         </VanTab>
-        <!--<VanTab title="查詢">-->
         <VanTab
           title="查詢"
           :disabled="account.token === ''"
