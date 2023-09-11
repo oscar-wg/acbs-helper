@@ -37,16 +37,16 @@ instance.interceptors.response.use(
     return res.data
   },
   err => {
-    if (err.code === 'ERR_NETWORK') {
-      showNotify({ type: 'danger', message: `[Chrome] ${err.message}, 請查看"說明"` })
-    } else if (err.code === 'ERR_BAD_RESPONSE') {
-      showNotify({
-        type: 'danger',
-        message: `[${err.response.status}] ${err.response.statusText}"`,
-      })
-    }
+    const errMsg =
+      err.code === 'ERR_NETWORK'
+        ? `[Chrome] ${err.message}, 請查看"說明"`
+        : `[${err.response.status}] ${err.response.statusText}"`
     console.log(err)
-    return Promise.reject(err)
+    return Promise.resolve({
+      responseCode: 999,
+      responseMessage: errMsg,
+      responseResult: null,
+    })
   },
 )
 

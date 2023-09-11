@@ -1,12 +1,6 @@
 <script lang="ts" setup>
 import { showNotify } from 'vant'
-import {
-  getVerifySlider,
-  checkPassBookingVerify,
-  solveSliderCaptcha,
-  createPassAppointment,
-  validationPassBooking,
-} from '@/services/api'
+import { getVerifySlider, checkPassBookingVerify, solveSliderCaptcha } from '@/services/api'
 import { getAcbsJwt } from '@/utils/acbs'
 
 defineOptions({

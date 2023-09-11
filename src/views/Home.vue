@@ -79,21 +79,24 @@ const loadVerifyCode = async () => {
     iss: account.uuid,
   })
 
-  await getVerifyCode({ jwt: jwtEncode }).then(async resp => {
-    if (resp.responseCode !== 200) {
-      showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
-      return
-    }
-    account.verifyCodeImg = resp.responseResult.imageUrl
-    account.verifyCodeId = resp.responseResult.verifyCodeId
+  await getVerifyCode({ jwt: jwtEncode })
+    .then(async resp => {
+      if (resp.responseCode !== 200) {
+        showNotify({ type: 'danger', message: `[澳車北上預約系統] ${resp.responseMessage}` })
+        return
+      }
+      account.verifyCodeImg = resp.responseResult.imageUrl
+      account.verifyCodeId = resp.responseResult.verifyCodeId
 
-    if (autoVerify.value === true) {
-      setTimeout(async () => {
-        getVerifyCodeDecode()
-      }, 100)
-    }
-  })
-  isLoading.verifyCode = false
+      if (autoVerify.value === true) {
+        setTimeout(async () => {
+          getVerifyCodeDecode()
+        }, 100)
+      }
+    })
+    .finally(() => {
+      isLoading.verifyCode = false
+    })
 }
 
 const loadVehicle = async () => {

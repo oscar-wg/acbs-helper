@@ -71,11 +71,3 @@ export async function getVerifySlider(params: any): Promise<any> {
 export function checkPassBookingVerify(params: any): Promise<any> {
   return acbsPost(`before/sys/captcha/checkPassBookingComplexImage`, params)
 }
-
-export function validationPassBooking(params: any): Promise<any> {
-  return acbsPost(`before/sys/appointment/validationPassBooking`, params)
-}
-
-export function createPassAppointment(params: any): Promise<any> {
-  return acbsPost(`before/sys/appointment/createPassAppointment`, params)
-}

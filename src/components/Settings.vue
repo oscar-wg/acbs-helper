@@ -6,7 +6,7 @@ defineOptions({
   name: 'Settings',
 })
 
-const apiMethod = ref('proxy')
+const apiMethod = ref('direct')
 const tgNotify = ref(false)
 const tgChatId = ref('')
 const proxyHost = ref(import.meta.env.VITE_APP_PROXY_HOST ?? '')
