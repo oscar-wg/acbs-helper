@@ -5,9 +5,9 @@ defineOptions({
 
 const showSetting = ref(false)
 const setting = ref<any>(null)
+const webTitle = import.meta.env.VITE_APP_NAME
 
 onMounted(() => {
-  console.log('onMounted Header')
   if (setting.value) {
     setting.value.init()
   }
@@ -16,7 +16,7 @@ onMounted(() => {
 
 <template>
   <VanNavBar
-    title="澳車北上小助手"
+    :title="webTitle"
     fixed
     @click-right="showSetting = true"
   >

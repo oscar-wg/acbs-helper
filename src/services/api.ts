@@ -71,3 +71,6 @@ export async function getVerifySlider(params: any): Promise<any> {
 export function checkPassBookingVerify(params: any): Promise<any> {
   return acbsPost(`before/sys/captcha/checkPassBookingComplexImage`, params)
 }
+
+// TODO: export function validationPassBooking(params: any): Promise<any>
+// TODO: export function createPassAppointment(params: any): Promise<any>
