@@ -135,7 +135,7 @@ const getSliderCaptchaResult = () => {
     widthScale: applyForm.verifyCodeWidth,
   }
   solveSliderCaptcha(req).then(resp => {
-    applyForm.verifyCodeValue = resp.result
+    applyForm.verifyCodeValue = resp.responseResult.result
     checkVerifySlider()
   })
 }

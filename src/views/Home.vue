@@ -55,7 +55,7 @@ const getVerifyCodeDecode = async () => {
   solveImageCaptcha({
     captcha: filterImg.value,
   }).then(resp => {
-    const answer = resp.result
+    const answer = resp.responseResult.result
     if (answer && answer.length === 4) {
       account.verifyCode = answer
     } else {
